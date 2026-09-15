@@ -20,9 +20,12 @@ import os
 import subprocess
 import sys
 import tempfile
+import base64
+import shutil
 from pathlib import Path
 from urllib.parse import quote
 
+from dotenv import load_dotenv
 from azure.identity import (
     DefaultAzureCredential,
     get_bearer_token_provider,
@@ -79,6 +82,11 @@ def log(message: str, level: int = logging.INFO) -> None:
 # ---------------------------------------------------------------------
 
 app = FastAPI()
+
+load_dotenv(
+    Path(__file__).with_name(".env"),
+    override=True,
+)
 
 GITHUB_TOKEN = os.environ["GITHUB_TOKEN"]
 REPO_NAME = os.environ["REPO_NAME"]
@@ -346,11 +354,6 @@ def create_model() -> LitellmModel:
             f"{quote(FOUNDRY_API_VERSION)}"
         )
 
-    log(
-        f"[SWEPilot] Using model deployment: "
-        f"{FOUNDRY_DEPLOYMENT}"
-    )
-
     return LitellmModel(
         model_name=f"openai/{FOUNDRY_DEPLOYMENT}",
         model_kwargs={
@@ -361,7 +364,38 @@ def create_model() -> LitellmModel:
 
 
 # ---------------------------------------------------------------------
-# Git repository handling
+
+def git_auth_environment() -> dict[str, str]:
+    """Return a process environment with GitHub HTTPS authentication."""
+
+    basic_credentials = base64.b64encode(
+        f"x-access-token:{GITHUB_TOKEN}".encode()
+    ).decode()
+    git_environment = os.environ.copy()
+    git_environment.update(
+        {
+            "GIT_CONFIG_COUNT": "1",
+            "GIT_CONFIG_KEY_0": "http.extraHeader",
+            "GIT_CONFIG_VALUE_0": (
+                f"AUTHORIZATION: basic {basic_credentials}"
+            ),
+        }
+    )
+    return git_environment
+
+
+def remove_python_cache_files(repo_path: Path) -> None:
+    """Keep interpreter-generated cache files out of the pull request."""
+
+    for cache_directory in repo_path.rglob("__pycache__"):
+        if cache_directory.is_dir():
+            shutil.rmtree(cache_directory)
+
+    for bytecode_file in repo_path.rglob("*.pyc"):
+        if bytecode_file.is_file():
+            bytecode_file.unlink()
+
+
 # ---------------------------------------------------------------------
 
 def clone_repo_to_sandbox(
@@ -398,6 +432,7 @@ def clone_repo_to_sandbox(
             str(workdir),
         ],
         check=True,
+        env=git_auth_environment(),
     )
 
     log("[SWEPilot] Repository cloned successfully.")
@@ -647,6 +682,8 @@ def push_branch_and_open_pr(
 
     log("[SWEPilot] Staging changes...")
 
+    remove_python_cache_files(repo_path)
+
     subprocess.run(
         [
             "git",
@@ -712,6 +749,7 @@ def push_branch_and_open_pr(
             commit_message,
         ],
         check=True,
+        env=git_auth_environment(),
     )
 
     log("[SWEPilot] Pushing branch to GitHub...")
@@ -726,6 +764,7 @@ def push_branch_and_open_pr(
             branch_name,
         ],
         check=True,
+        env=git_auth_environment(),
     )
 
     log("[SWEPilot] Branch pushed successfully.")
