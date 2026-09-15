@@ -284,18 +284,14 @@ SWEPilot separates AI-powered coding from deterministic workflow management.
 - [x] The agent successfully receives coding tasks.
 - [x] The agent edits files in the target repository.
 - [x] The agent uses an Azure-deployed language model.
-
-### In Development
-
-- [ ] GitHub App creation and configuration.
-- [ ] Secure webhook endpoint.
-- [ ] Issue-trigger detection.
-- [ ] Automated repository cloning.
-- [ ] Feature branch creation.
-- [ ] Automated test execution.
-- [ ] Commit and push workflow.
-- [ ] GitHub REST API Pull Request creation.
-- [ ] End-to-end issue-to-PR integration.
+- [x] Working webhook endpoint.
+- [x] Issue-trigger detection.
+- [x] Automated repository cloning.
+- [x] Commit and push workflow.
+- [x] Feature branch creation.
+- [x] GitHub REST API Pull Request creation.
+- [x] Automated test execution.
+- [x] End-to-end issue-to-PR integration.
 
 ---
 
@@ -308,7 +304,6 @@ Before running SWEPilot, ensure you have:
 - Python 3.10 or newer.
 - Git installed and available in the system PATH.
 - Access to an Azure-deployed language model.
-- mini-SWE-agent configured and working.
 - A GitHub repository for testing.
 - Appropriate GitHub permissions for repository operations.
 - An Azure VM or equivalent execution environment.
@@ -353,31 +348,20 @@ Create a local `.env` file based on the required configuration.
 Example:
 
 ```env
-# Azure model configuration
-AZURE_API_KEY=your_azure_api_key
-AZURE_API_BASE=https://your-resource.openai.azure.com/
-AZURE_API_VERSION=your_api_version
-AZURE_MODEL=your_deployment_name
+AZURE_FOUNDRY_ENDPOINT=<your-azure-openai-endpoint>
+AZURE_FOUNDRY_DEPLOYMENT=<your-azure-openai-deployment-name>
+AZURE_FOUNDRY_API_KEY=<your-azure-openai-api-key>
 
-# GitHub App configuration
-GITHUB_APP_ID=your_github_app_id
-GITHUB_PRIVATE_KEY_PATH=/path/to/private-key.pem
-GITHUB_WEBHOOK_SECRET=your_webhook_secret
-
-# Repository configuration
-GITHUB_OWNER=your-username
-GITHUB_REPOSITORY=your-repository
-GITHUB_BASE_BRANCH=main
+GITHUB_TOKEN=<your-github-token>
+REPO_NAME=<github-username>/<repo-name>
 ```
 
 **Do not commit API keys, GitHub private keys, or webhook secrets to version control.**
 
-### 5. Run mini-SWE-agent
-
-Use your existing mini-SWE-agent configuration to execute a coding task against a repository.
-
-The exact command depends on your mini-SWE-agent setup and model configuration.
-
+### 5. Run SWEPilot
+```env
+uvicorn main:app --reload
+```
 ---
 
 ## Configuration
@@ -481,55 +465,6 @@ SWEPilot executes AI-generated commands and repository code. Security is therefo
 - Automatically retry failed tasks.
 - Allow limited repair iterations.
 - Update the existing PR with additional fixes.
-
-### Multi-Agent Collaboration
-
-- Planning agent for task decomposition.
-- Coding agent for implementation.
-- Review agent for quality analysis.
-- Testing agent for validation.
-
-### Developer Experience
-
-- Web dashboard for job tracking.
-- Live agent execution logs.
-- PR quality and confidence scores.
-- Manual approval gates.
-- Support for multiple repositories.
-- Notifications through GitHub comments or other collaboration tools.
-
----
-
-## Contributing
-
-Contributions are welcome.
-
-1. Fork the repository.
-2. Create a feature branch:
-
-   ```bash
-   git checkout -b feature/your-feature
-   ```
-
-3. Make your changes.
-4. Run the available tests.
-5. Commit your changes:
-
-   ```bash
-   git commit -m "Add your feature"
-   ```
-
-6. Push the branch:
-
-   ```bash
-   git push origin feature/your-feature
-   ```
-
-7. Open a Pull Request.
-
-Please ensure that contributions do not expose credentials or weaken the security of agent execution.
-
----
 
 ## License
 
