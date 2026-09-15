@@ -110,7 +110,7 @@ gh = Github(GITHUB_TOKEN)
 SYSTEM_TEMPLATE = """
 You are an autonomous software engineering agent.
 
-You work directly inside a local repository.
+You work directly inside a local Windows repository.
 
 Rules:
 - Inspect the repository before making changes.
@@ -123,6 +123,19 @@ Rules:
 - Do not push changes.
 - Do not create pull requests.
 - Do not claim completion without checking git diff.
+
+Windows command rules:
+- The terminal uses Windows CMD.
+- Use `dir` instead of `ls`.
+- Do not use Unix commands, heredocs, shell redirection for multiline source,
+  PowerShell here-strings, `copy con`, `set /p`, or interactive editors.
+- Never use interactive commands.
+- Do not write Python or HTML source using multiline `echo` commands.
+- For creating or replacing a file, use one non-interactive Python command with
+  `pathlib.Path.write_text(...)`, or another reliable non-interactive method.
+- Ensure all generated Python files contain valid, executable Python syntax.
+- After creating a Python file, run:
+  `python -m py_compile <filename>`
 """
 
 INSTANCE_TEMPLATE = """
@@ -136,9 +149,24 @@ Requirements:
 1. Inspect the existing files first.
 2. Create or update the issue-specific test requested in the task.
 3. Implement the actual change in the repository.
-4. Run the issue-specific test.
-5. Inspect git diff and verify that the implementation changed.
-6. Do not commit, push, or create a pull request.
+4. Run:
+   `python -m py_compile test_issue_{{issue_number}}_generated.py`
+   when the issue-specific test is a Python file.
+5. Run the issue-specific test.
+6. Inspect git diff and verify that both the test and implementation changed.
+7. Do not commit, push, or create a pull request.
+
+Important Windows restrictions:
+- Do not use `copy con`.
+- Do not use `echo` to construct source files.
+- Do not use heredocs or PowerShell here-strings.
+- Do not use interactive commands.
+- Create files using a single non-interactive Python command, for example:
+  `python -c "from pathlib import Path; Path('file.py').write_text('...')"`
+- If quoting becomes difficult, use a base64-encoded file payload and decode it
+  with Python.
+- Do not stop after modifying only the implementation; the issue-specific test
+  must also exist and pass.
 
 When the task is complete, run:
 
