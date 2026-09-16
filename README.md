@@ -311,7 +311,7 @@ Before running SWEPilot, ensure you have:
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/<your-username>/SWEPilot.git
+git clone https://github.com/Hrick-08/SWEPilot.git
 cd SWEPilot
 ```
 
