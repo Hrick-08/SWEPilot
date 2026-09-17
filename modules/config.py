@@ -1,7 +1,9 @@
 """Application configuration and environment loading."""
 
-from dataclasses import dataclass
+from __future__ import annotations
+
 import os
+from dataclasses import dataclass
 from pathlib import Path
 from urllib.parse import quote
 
@@ -14,6 +16,7 @@ class Settings:
     repo_name: str
     foundry_endpoint: str
     foundry_deployment: str
+    database_url: str
     foundry_api_version: str = "2025-04-01-preview"
     base_branch: str = "main"
     agent_step_limit: int = 60
@@ -26,15 +29,21 @@ class Settings:
             "repo_name": "REPO_NAME",
             "foundry_endpoint": "AZURE_FOUNDRY_ENDPOINT",
             "foundry_deployment": "AZURE_FOUNDRY_DEPLOYMENT",
+            "database_url": "DATABASE_URL",
         }
         missing = [name for name in required.values() if not os.getenv(name)]
         if missing:
             raise RuntimeError(f"Missing required environment variables: {', '.join(missing)}")
+        database_url = os.environ[required["database_url"]]
+        if database_url.startswith("postgresql+psycopg2://"):
+            database_url = database_url.replace("postgresql+psycopg2://", "postgresql+psycopg://", 1)
+
         return cls(
             github_token=os.environ[required["github_token"]],
             repo_name=os.environ[required["repo_name"]],
             foundry_endpoint=os.environ[required["foundry_endpoint"]].rstrip("/"),
             foundry_deployment=os.environ[required["foundry_deployment"]],
+            database_url=database_url,
             foundry_api_version=os.getenv("AZURE_FOUNDRY_API_VERSION", "2025-04-01-preview"),
             base_branch=os.getenv("SWEPILOT_BASE_BRANCH", "main"),
             agent_step_limit=int(os.getenv("SWEPILOT_AGENT_STEP_LIMIT", "60")),

@@ -22,10 +22,8 @@ def configure_logging() -> logging.Logger:
     # Keep the existing terminal logging
     # and additionally send logs to WebSocketLogHandler
     root_logger = logging.getLogger()
-
-    root_logger.addHandler(
-        WebSocketLogHandler()
-    )
+    if not any(isinstance(handler, WebSocketLogHandler) for handler in root_logger.handlers):
+        root_logger.addHandler(WebSocketLogHandler())
 
     for name in (
         "LiteLLM",
