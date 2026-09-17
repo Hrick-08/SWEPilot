@@ -33,10 +33,18 @@ class LogStreamManager:
     def configure_database(self, database_service) -> None:
         self.database = database_service
 
-    def register_run(self, run_id: str, issue_number: int) -> None:
+    def register_run(
+        self,
+        run_id: str,
+        issue_number: int,
+        issue_title: str | None = None,
+        repository: str | None = None,
+    ) -> None:
         metadata = {
             "run_id": run_id,
             "issue_number": issue_number,
+            "issue_title": issue_title or f"Issue #{issue_number}",
+            "repository": repository,
             "status": "running",
         }
         self.runs_by_id[run_id] = metadata

@@ -102,6 +102,10 @@ class DatabaseService:
                 .scalar_one_or_none()
             )
 
+    def get_runs(self) -> list[AgentRun]:
+        with self.session_factory() as session:
+            return session.execute(select(AgentRun).order_by(AgentRun.started_at.desc())).scalars().all()
+
     def get_logs_for_run(self, run_id: str) -> list[dict[str, str | int | None]]:
         with self.session_factory() as session:
             rows = session.execute(

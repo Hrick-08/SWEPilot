@@ -71,15 +71,64 @@ def create_router(
     async def health() -> dict[str, str]:
         return {"status": "ok"}
 
+    @router.get("/runs")
+    async def get_runs():
+        if log_stream_manager.database is not None:
+            runs = log_stream_manager.database.get_runs()
+            return [
+                {
+                    "run_id": run.run_id,
+                    "issue_number": run.issue_number,
+                    "issue_title": log_stream_manager.runs_by_id.get(run.run_id, {}).get(
+                        "issue_title", f"Issue #{run.issue_number}"
+                    ),
+                    "repository": log_stream_manager.runs_by_id.get(run.run_id, {}).get("repository"),
+                    "status": run.status,
+                    "started_at": run.started_at.isoformat(),
+                    "finished_at": run.finished_at.isoformat() if run.finished_at else None,
+                }
+                for run in runs
+            ]
+
+        return list(log_stream_manager.runs_by_id.values())
+
+    @router.get("/issues")
+    async def get_issues():
+        runs = await get_runs()
+        return [
+            {
+                "id": run["issue_number"],
+                "title": run["issue_title"],
+                "status": "open",
+                "labels": [],
+                "created_at": run["started_at"],
+                "updated_at": run["finished_at"] or run["started_at"],
+                "description": "",
+                "repository": run.get("repository") or settings.repo_name,
+                "agent_status": run["status"],
+            }
+            for run in runs
+        ]
+
     @router.get("/runs/{issue_number}")
     async def get_run(issue_number: int):
         run = log_stream_manager.get_latest_run_for_issue(issue_number)
-        if run is None:
+        if run is not None:
+            return {
+                "run_id": run["run_id"],
+                "issue_number": run["issue_number"],
+                "status": run["status"],
+            }
+
+        database = log_stream_manager.database
+        stored_run = database.get_latest_run_for_issue(issue_number) if database is not None else None
+        if stored_run is None:
             raise HTTPException(status_code=404, detail="No run found for this issue")
+
         return {
-            "run_id": run["run_id"],
-            "issue_number": run["issue_number"],
-            "status": run["status"],
+            "run_id": stored_run.run_id,
+            "issue_number": stored_run.issue_number,
+            "status": stored_run.status,
         }
 
     @router.get("/runs/{run_id}/logs")
@@ -105,7 +154,12 @@ def create_router(
         repository = payload.repository
         run_id = uuid.uuid4().hex
 
-        log_stream_manager.register_run(run_id, issue.number)
+        log_stream_manager.register_run(
+            run_id,
+            issue.number,
+            issue.title,
+            repository.clone_url,
+        )
 
         token = current_run_id.set(run_id)
         try:

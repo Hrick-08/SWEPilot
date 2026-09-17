@@ -1,6 +1,7 @@
 """FastAPI application factory."""
 
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import sessionmaker
 
 from .api import create_router
@@ -26,6 +27,13 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     git_service = GitService(settings)
     workflow = IssueWorkflowService(settings, git_service)
     application = FastAPI(title="SWEPilot", version="1.0.0")
+    application.add_middleware(
+        CORSMiddleware,
+        allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
     application.include_router(create_router(settings, workflow))
     application.state.settings = settings
     application.state.workflow = workflow
