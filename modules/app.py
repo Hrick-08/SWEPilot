@@ -1,19 +1,34 @@
 """FastAPI application factory."""
 
 from fastapi import FastAPI
+from sqlalchemy.orm import sessionmaker
 
 from .api import create_router
 from .config import Settings
+from .database import Base, create_database_engine
+from .db_models import AgentLog, AgentRun  # noqa: F401
+from .db_service import DatabaseService
 from .git_service import GitService
+from .log_stream import log_stream_manager
 from .workflow import IssueWorkflowService
 
 
 def create_app(settings: Settings | None = None) -> FastAPI:
-	settings = settings or Settings.from_env()
-	git_service = GitService(settings)
-	workflow = IssueWorkflowService(settings, git_service)
-	application = FastAPI(title="SWEPilot", version="1.0.0")
-	application.include_router(create_router(settings, workflow))
-	application.state.settings = settings
-	application.state.workflow = workflow
-	return application
+    settings = settings or Settings.from_env()
+
+    engine = create_database_engine(settings.database_url)
+    session_factory = sessionmaker(bind=engine, autoflush=False, autocommit=False, expire_on_commit=False, future=True)
+    database_service = DatabaseService(session_factory)
+
+    log_stream_manager.configure_database(database_service)
+    Base.metadata.create_all(bind=engine)
+
+    git_service = GitService(settings)
+    workflow = IssueWorkflowService(settings, git_service)
+    application = FastAPI(title="SWEPilot", version="1.0.0")
+    application.include_router(create_router(settings, workflow))
+    application.state.settings = settings
+    application.state.workflow = workflow
+    application.state.database = database_service
+    application.state.log_stream_manager = log_stream_manager
+    return application
