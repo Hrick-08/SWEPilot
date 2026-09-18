@@ -353,7 +353,8 @@ AZURE_FOUNDRY_DEPLOYMENT=<your-azure-openai-deployment-name>
 AZURE_FOUNDRY_API_KEY=<your-azure-openai-api-key>
 
 GITHUB_TOKEN=<your-github-token>
-REPO_NAME=<github-username>/<repo-name>
+# Optional legacy fallback for direct workflow calls.
+# REPO_NAME=<github-username>/<repo-name>
 ```
 
 **Do not commit API keys, GitHub private keys, or webhook secrets to version control.**

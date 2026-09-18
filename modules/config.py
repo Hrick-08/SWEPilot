@@ -13,7 +13,7 @@ from dotenv import load_dotenv
 @dataclass(frozen=True)
 class Settings:
     github_token: str
-    repo_name: str
+    repo_name: str | None
     foundry_endpoint: str
     foundry_deployment: str
     database_url: str
@@ -26,7 +26,6 @@ class Settings:
         load_dotenv(env_file or Path(__file__).resolve().parent.parent / ".env", override=True)
         required = {
             "github_token": "GITHUB_TOKEN",
-            "repo_name": "REPO_NAME",
             "foundry_endpoint": "AZURE_FOUNDRY_ENDPOINT",
             "foundry_deployment": "AZURE_FOUNDRY_DEPLOYMENT",
             "database_url": "DATABASE_URL",
@@ -40,7 +39,7 @@ class Settings:
 
         return cls(
             github_token=os.environ[required["github_token"]],
-            repo_name=os.environ[required["repo_name"]],
+            repo_name=os.getenv("REPO_NAME"),
             foundry_endpoint=os.environ[required["foundry_endpoint"]].rstrip("/"),
             foundry_deployment=os.environ[required["foundry_deployment"]],
             database_url=database_url,
