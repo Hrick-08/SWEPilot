@@ -16,6 +16,7 @@ from fastapi import (
 )
 
 from .config import Settings
+from .git_service import GitService
 from .logging_config import log
 from .log_stream import current_run_id, log_stream_manager
 from .models import WebhookPayload
@@ -30,6 +31,7 @@ def run_workflow_in_background(
     issue_body: str,
     clone_url: str,
     run_id: str,
+    repository_name: str | None = None,
 ) -> None:
     token = current_run_id.set(run_id)
     status = "completed"
@@ -40,6 +42,7 @@ def run_workflow_in_background(
             issue_title=issue_title,
             issue_body=issue_body,
             clone_url=clone_url,
+            repository_name=repository_name,
         )
         status = "failed" if str(result.get("status", "")).lower() in {"failed_tests", "failed"} else "completed"
         log(f"[SWEPilot] Run {run_id} finished: {result}")
@@ -49,7 +52,7 @@ def run_workflow_in_background(
         log(str(exc), logging.ERROR)
 
         try:
-            workflow.git_service.github.get_repo(settings.repo_name).get_issue(issue_number).create_comment(
+            workflow.git_service.github.get_repo(repository_name or settings.repo_name).get_issue(issue_number).create_comment(
                 "SWEPilot failed before a PR could be opened. Check the orchestrator terminal logs."
             )
         except Exception as comment_error:
@@ -152,6 +155,7 @@ def create_router(
 
         issue = payload.issue
         repository = payload.repository
+        repository_name = repository.full_name or GitService.repository_name_from_clone_url(repository.clone_url)
         run_id = uuid.uuid4().hex
 
         log_stream_manager.register_run(
@@ -182,6 +186,7 @@ def create_router(
             issue.body or "",
             repository.clone_url,
             run_id,
+            repository_name,
         )
 
         return {"status": "started", "run_id": run_id}

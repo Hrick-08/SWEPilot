@@ -132,13 +132,21 @@ echo COMPLETE_TASK_AND_SUBMIT_FINAL_OUTPUT
 		issue_title: str,
 		issue_body: str,
 		clone_url: str,
+		repository_name: str | None = None,
 	) -> dict[str, str]:
+		target_repository = (
+			repository_name
+			or self.git_service.repository_name_from_clone_url(clone_url)
+			or self.settings.repo_name
+		)
 		repo_path = self.git_service.clone_to_sandbox(clone_url, self.settings.base_branch)
 		passed = self.run_agent_on_issue(repo_path, issue_number, issue_title, issue_body)
 		if not passed:
-			self.git_service.github.get_repo(self.settings.repo_name).get_issue(issue_number).create_comment(
+			self.git_service.github.get_repo(target_repository).get_issue(issue_number).create_comment(
 				"SWEPilot attempted this issue, but the independent test suite failed. No PR was opened."
 			)
 			return {"status": "failed_tests"}
-		pr_url = self.git_service.push_branch_and_open_pr(repo_path, issue_number, issue_title)
+		pr_url = self.git_service.push_branch_and_open_pr(
+			repo_path, issue_number, issue_title, target_repository
+		)
 		return {"status": "pr_opened", "pr_url": pr_url}

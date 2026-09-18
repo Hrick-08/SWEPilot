@@ -17,6 +17,7 @@ class RepositoryPayload(BaseModel):
     model_config = ConfigDict(extra="allow")
 
     clone_url: str
+    full_name: str | None = None
 
 
 class WebhookPayload(BaseModel):

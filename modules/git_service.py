@@ -6,6 +6,7 @@ import shutil
 import subprocess
 import tempfile
 from pathlib import Path
+from urllib.parse import urlparse
 
 from github import Github
 
@@ -48,6 +49,16 @@ class GitService:
         return workdir
 
     @staticmethod
+    def repository_name_from_clone_url(clone_url: str) -> str | None:
+        parsed = urlparse(clone_url)
+        path = parsed.path
+        if not path and ":" in clone_url:
+            path = clone_url.split(":", 1)[1]
+        repository_name = path.strip("/").removesuffix(".git")
+        parts = repository_name.split("/")
+        return "/".join(parts[-2:]) if len(parts) >= 2 else None
+
+    @staticmethod
     def remove_python_cache_files(repo_path: Path) -> None:
         for cache_directory in repo_path.rglob("__pycache__"):
             if cache_directory.is_dir():
@@ -56,7 +67,13 @@ class GitService:
             if bytecode_file.is_file():
                 bytecode_file.unlink()
 
-    def push_branch_and_open_pr(self, repo_path: Path, issue_number: int, issue_title: str) -> str:
+    def push_branch_and_open_pr(
+        self,
+        repo_path: Path,
+        issue_number: int,
+        issue_title: str,
+        repository_name: str | None = None,
+    ) -> str:
         branch_name = f"SWEPilot/issue-{issue_number}"
         log("")
         log("=" * 90)
@@ -91,7 +108,7 @@ class GitService:
             check=True,
             env=self.auth_environment(),
         )
-        repo = self.github.get_repo(self.settings.repo_name)
+        repo = self.github.get_repo(repository_name or self.settings.repo_name)
         pr = repo.create_pull(
             title=f"[SWEPilot] {issue_title}",
             body=(
