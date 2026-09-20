@@ -20,6 +20,7 @@ class Settings:
     foundry_api_version: str = "2025-04-01-preview"
     base_branch: str = "main"
     agent_step_limit: int = 60
+    issue_flag: str = "/SWEPilot"
 
     @classmethod
     def from_env(cls, env_file: Path | None = None) -> "Settings":
@@ -46,6 +47,7 @@ class Settings:
             foundry_api_version=os.getenv("AZURE_FOUNDRY_API_VERSION", "2025-04-01-preview"),
             base_branch=os.getenv("SWEPILOT_BASE_BRANCH", "main"),
             agent_step_limit=int(os.getenv("SWEPILOT_AGENT_STEP_LIMIT", "60")),
+            issue_flag=os.getenv("SWEPILOT_ISSUE_FLAG", "/SWEPilot"),
         )
 
     @property

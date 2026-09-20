@@ -12,6 +12,12 @@ class IssuePayload(BaseModel):
     title: str
     body: str | None = None
 
+    def has_flag(self, flag: str) -> bool:
+        """Return True if the given flag (e.g. '/SWEPilot') appears in the issue title."""
+        if not flag:
+            return False
+        return flag.strip().lower() in self.title.lower()
+
 
 class RepositoryPayload(BaseModel):
     model_config = ConfigDict(extra="allow")

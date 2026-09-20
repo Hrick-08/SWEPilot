@@ -155,7 +155,14 @@ def create_router(
 
         issue = payload.issue
         repository = payload.repository
+        if not issue.has_flag(settings.issue_flag):
+            log(
+                f"[SWEPilot] Ignoring issue #{issue.number} - title does not contain "
+                f"the '{settings.issue_flag}' flag: {issue.title!r}"
+            )
+            return {"status": "ignored", "reason": "missing_flag"}
         repository_name = repository.full_name or GitService.repository_name_from_clone_url(repository.clone_url)
+
         run_id = uuid.uuid4().hex
 
         log_stream_manager.register_run(
