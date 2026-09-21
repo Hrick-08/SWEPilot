@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { Github, Bot, Bell, Palette } from 'lucide-react';
+import { Github, Bot, Bell, Palette, Key } from 'lucide-react';
 import Card from '../components/ui/Card';
+import { useAuth } from '../context/AuthContext';
 
 interface ToggleProps {
   label: string;
@@ -37,6 +38,7 @@ function Toggle({ label, description, checked, onChange }: ToggleProps) {
 }
 
 export default function SettingsPage() {
+  const { username } = useAuth();
   const [settings, setSettings] = useState({
     autoCreatePR: true,
     autoRunTests: true,
@@ -69,7 +71,7 @@ export default function SettingsPage() {
         <div className="space-y-3">
           <div className="flex items-center justify-between py-2">
             <span className="text-[13px] text-[#94A3B8]">Repository</span>
-            <span className="text-[13px] font-mono text-[#F8FAFC]">Hrick-08/SWEPilot</span>
+            <span className="text-[13px] font-mono text-[#F8FAFC]">{username}/SWEPilot</span>
           </div>
           <div className="border-t border-[#1E293B]" />
           <div className="flex items-center justify-between py-2">
@@ -96,12 +98,33 @@ export default function SettingsPage() {
 
         <div className="flex items-center gap-3 py-2">
           <div className="flex items-center justify-center w-10 h-10 rounded-full bg-[#3B82F6]/20 text-[#3B82F6] text-[14px] font-semibold">
-            A
+            {username?.charAt(0).toUpperCase() ?? 'U'}
           </div>
           <div>
-            <p className="text-[13px] font-medium text-[#F8FAFC]">Abhinav</p>
-            <p className="text-[12px] text-[#64748B]">abhinav@example.com</p>
+            <p className="text-[13px] font-medium text-[#F8FAFC]">{username}</p>
+            <p className="text-[12px] text-[#64748B]">GitHub: @{username}</p>
           </div>
+        </div>
+
+        <div className="mt-4 border-t border-[#1E293B] pt-4">
+          <div className="flex items-center gap-2 mb-2">
+            <Key className="w-4 h-4 text-[#94A3B8]" />
+            <h3 className="text-[14px] font-medium text-[#F8FAFC]">GitHub Token</h3>
+          </div>
+          <div className="flex items-center gap-3">
+            <input
+              type="password"
+              value="••••••••••••••••"
+              disabled
+              className="flex-1 bg-[#080B12] border border-[#1E293B] text-[#94A3B8] text-sm rounded-lg px-3 py-2 focus:outline-none cursor-not-allowed"
+            />
+            <button className="px-4 py-2 bg-[#1E293B] hover:bg-[#334155] text-[#F8FAFC] text-sm font-medium rounded-lg transition-colors">
+              Update Token
+            </button>
+          </div>
+          <p className="text-[12px] text-[#64748B] mt-2">
+            Contact admin to update token or use the CLI.
+          </p>
         </div>
       </Card>
 

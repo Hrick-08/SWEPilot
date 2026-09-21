@@ -9,6 +9,7 @@ import {
   X,
 } from 'lucide-react';
 import { useEffect } from 'react';
+import { useAuth } from '../../context/AuthContext';
 
 const navItems = [
   { to: '/overview', label: 'Overview', icon: LayoutDashboard },
@@ -25,6 +26,7 @@ interface MobileSidebarProps {
 
 export default function MobileSidebar({ isOpen, onClose }: MobileSidebarProps) {
   const location = useLocation();
+  const { username } = useAuth();
 
   // Close on route change
   useEffect(() => {
@@ -110,7 +112,7 @@ export default function MobileSidebar({ isOpen, onClose }: MobileSidebarProps) {
               Repository
             </p>
             <p className="text-[12.5px] font-mono font-medium text-[#F8FAFC] truncate">
-              Hrick-08/SWEPilot
+              {username}/SWEPilot
             </p>
             <div className="flex items-center gap-1.5 mt-2">
               <span className="w-2 h-2 rounded-full bg-[#22C55E] animate-pulse" />

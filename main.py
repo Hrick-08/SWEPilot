@@ -3,7 +3,7 @@
 Run with:
     uvicorn run_agent:app --host 0.0.0.0 --port 8000 --reload
 
-The implementation lives in the ``swepilot`` package. This module remains as
+The implementation lives in the ``modules`` package. This module remains as
 an entrypoint and compatibility facade for existing local integrations.
 """
 

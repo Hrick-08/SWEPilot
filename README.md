@@ -352,7 +352,7 @@ AZURE_FOUNDRY_ENDPOINT=<your-azure-openai-endpoint>
 AZURE_FOUNDRY_DEPLOYMENT=<your-azure-openai-deployment-name>
 AZURE_FOUNDRY_API_KEY=<your-azure-openai-api-key>
 
-GITHUB_TOKEN=<your-github-token>
+# GitHub tokens are collected during registration and stored encrypted in the database.
 # Optional legacy fallback for direct workflow calls.
 # REPO_NAME=<github-username>/<repo-name>
 ```

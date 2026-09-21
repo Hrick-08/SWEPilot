@@ -1,9 +1,18 @@
-import { Search, Bell, FolderGit2, Menu, X } from 'lucide-react';
+import { Search, Bell, FolderGit2, Menu, X, LogOut } from 'lucide-react';
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import MobileSidebar from './MobileSidebar';
+import { useAuth } from '../../context/AuthContext';
 
 export default function TopBar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { username, logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
 
   return (
     <>
@@ -22,7 +31,7 @@ export default function TopBar() {
           <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-md bg-[#0D121C] border border-[#1E293B]">
             <FolderGit2 className="w-3.5 h-3.5 text-[#64748B]" />
             <span className="text-[13px] font-mono text-[#94A3B8]">
-              Hrick-08/SWEPilot
+              {username}/SWEPilot
             </span>
           </div>
         </div>
@@ -50,13 +59,20 @@ export default function TopBar() {
             <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-[#3B82F6]" />
           </button>
 
-          {/* Avatar */}
-          <button
-            className="flex items-center justify-center w-8 h-8 rounded-full bg-[#3B82F6]/20 text-[#3B82F6] text-[13px] font-semibold hover:bg-[#3B82F6]/30 transition-colors"
-            aria-label="User menu"
-          >
-            A
-          </button>
+          {/* User */}
+          <div className="flex items-center gap-2 ml-2">
+            <span className="hidden md:block text-[13px] text-[#94A3B8]">{username}</span>
+            <div className="flex items-center justify-center w-8 h-8 rounded-full bg-[#3B82F6]/20 text-[#3B82F6] text-[13px] font-semibold">
+              {username?.charAt(0).toUpperCase() ?? 'U'}
+            </div>
+            <button
+              onClick={handleLogout}
+              className="p-1.5 text-[#64748B] hover:text-[#EF4444] hover:bg-[#161D2A] rounded-md transition-colors ml-1"
+              title="Logout"
+            >
+              <LogOut className="w-4 h-4" />
+            </button>
+          </div>
         </div>
       </header>
 

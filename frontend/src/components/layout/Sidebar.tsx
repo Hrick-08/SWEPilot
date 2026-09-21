@@ -7,6 +7,7 @@ import {
   Settings,
   Bot,
 } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
 
 const navItems = [
   { to: '/overview', label: 'Overview', icon: LayoutDashboard },
@@ -18,6 +19,7 @@ const navItems = [
 
 export default function Sidebar() {
   const location = useLocation();
+  const { username } = useAuth();
 
   return (
     <aside className="hidden lg:flex flex-col w-[232px] min-w-[232px] h-screen bg-[#0B0F17] border-r border-[#1E293B] sticky top-0">
@@ -67,7 +69,7 @@ export default function Sidebar() {
             Repository
           </p>
           <p className="text-[12.5px] font-mono font-medium text-[#F8FAFC] truncate">
-            Hrick-08/SWEPilot
+            {username}/SWEPilot
           </p>
           <div className="flex items-center gap-1.5 mt-2">
             <span className="w-2 h-2 rounded-full bg-[#22C55E] animate-pulse" />

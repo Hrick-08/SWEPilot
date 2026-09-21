@@ -12,11 +12,11 @@ from dotenv import load_dotenv
 
 @dataclass(frozen=True)
 class Settings:
-    github_token: str
     repo_name: str | None
     foundry_endpoint: str
     foundry_deployment: str
     database_url: str
+    secret_key: str = "change-me-in-production"
     foundry_api_version: str = "2025-04-01-preview"
     base_branch: str = "main"
     agent_step_limit: int = 60
@@ -26,7 +26,6 @@ class Settings:
     def from_env(cls, env_file: Path | None = None) -> "Settings":
         load_dotenv(env_file or Path(__file__).resolve().parent.parent / ".env", override=True)
         required = {
-            "github_token": "GITHUB_TOKEN",
             "foundry_endpoint": "AZURE_FOUNDRY_ENDPOINT",
             "foundry_deployment": "AZURE_FOUNDRY_DEPLOYMENT",
             "database_url": "DATABASE_URL",
@@ -39,11 +38,11 @@ class Settings:
             database_url = database_url.replace("postgresql+psycopg2://", "postgresql+psycopg://", 1)
 
         return cls(
-            github_token=os.environ[required["github_token"]],
             repo_name=os.getenv("REPO_NAME"),
             foundry_endpoint=os.environ[required["foundry_endpoint"]].rstrip("/"),
             foundry_deployment=os.environ[required["foundry_deployment"]],
             database_url=database_url,
+            secret_key=os.getenv("SECRET_KEY", "change-me-in-production"),
             foundry_api_version=os.getenv("AZURE_FOUNDRY_API_VERSION", "2025-04-01-preview"),
             base_branch=os.getenv("SWEPILOT_BASE_BRANCH", "main"),
             agent_step_limit=int(os.getenv("SWEPILOT_AGENT_STEP_LIMIT", "60")),

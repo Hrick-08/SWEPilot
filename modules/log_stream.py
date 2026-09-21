@@ -39,6 +39,7 @@ class LogStreamManager:
         issue_number: int,
         issue_title: str | None = None,
         repository: str | None = None,
+        triggered_by: str | None = None,
     ) -> None:
         metadata = {
             "run_id": run_id,
@@ -46,13 +47,14 @@ class LogStreamManager:
             "issue_title": issue_title or f"Issue #{issue_number}",
             "repository": repository,
             "status": "running",
+            "triggered_by": triggered_by,
         }
         self.runs_by_id[run_id] = metadata
         self.runs_by_issue[issue_number] = metadata
 
         if self.database is not None:
             try:
-                self.database.create_run(run_id, issue_number, "running")
+                self.database.create_run(run_id, issue_number, "running", triggered_by=triggered_by)
             except Exception as exc:
                 self._terminal_logger.exception("Database run registration failed for %s: %s", run_id, exc)
 

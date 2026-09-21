@@ -13,7 +13,41 @@ export function websocketUrl(path: string): string {
 }
 
 export async function getJson<T>(path: string): Promise<T> {
-  const response = await fetch(apiUrl(path));
+  const token = localStorage.getItem('swepilot_token');
+  const headers: Record<string, string> = {};
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+  const response = await fetch(apiUrl(path), { headers });
+  if (response.status === 401) {
+    localStorage.removeItem('swepilot_token');
+    localStorage.removeItem('swepilot_username');
+    window.location.href = '/login';
+    throw new Error('Unauthorized');
+  }
+  if (!response.ok) {
+    throw new Error(`Request failed: ${response.status}`);
+  }
+  return response.json() as Promise<T>;
+}
+
+export async function postJson<T>(path: string, body: unknown): Promise<T> {
+  const token = localStorage.getItem('swepilot_token');
+  const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+  const response = await fetch(apiUrl(path), {
+    method: 'POST',
+    headers,
+    body: JSON.stringify(body),
+  });
+  if (response.status === 401) {
+    localStorage.removeItem('swepilot_token');
+    localStorage.removeItem('swepilot_username');
+    window.location.href = '/login';
+    throw new Error('Unauthorized');
+  }
   if (!response.ok) {
     throw new Error(`Request failed: ${response.status}`);
   }

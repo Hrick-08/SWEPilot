@@ -17,11 +17,25 @@ from .logging_config import log
 class GitService:
     def __init__(self, settings: Settings, github: Github | None = None):
         self.settings = settings
-        self.github = github or Github(settings.github_token)
+        self.github = github
 
-    def auth_environment(self) -> dict[str, str]:
+    def _token_for(self, github_token: str | None = None) -> str:
+        """Return the per-user token used for GitHub operations."""
+        if not github_token:
+            raise RuntimeError("No GitHub token is available for this operation.")
+        return github_token
+
+    def _github_for(self, github_token: str | None = None) -> Github:
+        """Return a PyGithub client using the supplied user token."""
+        token = self._token_for(github_token)
+        if self.github is not None and github_token:
+            return self.github
+        return Github(token)
+
+    def auth_environment(self, github_token: str | None = None) -> dict[str, str]:
+        token = self._token_for(github_token)
         credentials = base64.b64encode(
-            f"x-access-token:{self.settings.github_token}".encode()
+            f"x-access-token:{token}".encode()
         ).decode()
         environment = os.environ.copy()
         environment.update({
@@ -31,7 +45,24 @@ class GitService:
         })
         return environment
 
-    def clone_to_sandbox(self, repo_url: str, branch_base: str | None = None) -> Path:
+    @staticmethod
+    def _set_swepilot_identity(repo_path: Path) -> None:
+        """Configure the local git repo so commits appear as 'SWEPilot'."""
+        subprocess.run(
+            ["git", "-C", str(repo_path), "config", "user.name", "SWEPilot"],
+            check=True,
+        )
+        subprocess.run(
+            ["git", "-C", str(repo_path), "config", "user.email", "swepilot@noreply.github.com"],
+            check=True,
+        )
+
+    def clone_to_sandbox(
+        self,
+        repo_url: str,
+        branch_base: str | None = None,
+        github_token: str | None = None,
+    ) -> Path:
         branch = branch_base or self.settings.base_branch
         workdir = Path(tempfile.mkdtemp(prefix="agent-run-"))
         log("")
@@ -43,8 +74,10 @@ class GitService:
         subprocess.run(
             ["git", "clone", "--branch", branch, "--depth", "1", repo_url, str(workdir)],
             check=True,
-            env=self.auth_environment(),
+            env=self.auth_environment(github_token),
         )
+        # Set SWEPilot identity for all commits
+        self._set_swepilot_identity(workdir)
         log("[SWEPilot] Repository cloned successfully.")
         return workdir
 
@@ -57,6 +90,16 @@ class GitService:
         repository_name = path.strip("/").removesuffix(".git")
         parts = repository_name.split("/")
         return "/".join(parts[-2:]) if len(parts) >= 2 else None
+
+    @staticmethod
+    def owner_from_clone_url(clone_url: str) -> str | None:
+        """Extract the repository owner (GitHub username) from a clone URL."""
+        parsed = urlparse(clone_url)
+        path = parsed.path
+        if not path and ":" in clone_url:
+            path = clone_url.split(":", 1)[1]
+        parts = path.strip("/").removesuffix(".git").split("/")
+        return parts[0] if len(parts) >= 2 else None
 
     @staticmethod
     def remove_python_cache_files(repo_path: Path) -> None:
@@ -73,6 +116,7 @@ class GitService:
         issue_number: int,
         issue_title: str,
         repository_name: str | None = None,
+        github_token: str | None = None,
     ) -> str:
         branch_name = f"SWEPilot/issue-{issue_number}"
         log("")
@@ -98,17 +142,19 @@ class GitService:
         log("[SWEPilot] Staged diff:")
         log(staged_diff.stdout)
         commit_message = f"Fix: {issue_title} (closes #{issue_number})"
+        auth_env = self.auth_environment(github_token)
         subprocess.run(
             ["git", "-C", str(repo_path), "commit", "-m", commit_message],
             check=True,
-            env=self.auth_environment(),
+            env=auth_env,
         )
         subprocess.run(
             ["git", "-C", str(repo_path), "push", "origin", branch_name],
             check=True,
-            env=self.auth_environment(),
+            env=auth_env,
         )
-        repo = self.github.get_repo(repository_name or self.settings.repo_name)
+        gh = self._github_for(github_token)
+        repo = gh.get_repo(repository_name or self.settings.repo_name)
         pr = repo.create_pull(
             title=f"[SWEPilot] {issue_title}",
             body=(

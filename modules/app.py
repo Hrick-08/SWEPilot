@@ -6,8 +6,8 @@ from sqlalchemy.orm import sessionmaker
 
 from .api import create_router
 from .config import Settings
-from .database import Base, create_database_engine
-from .db_models import AgentLog, AgentRun  # noqa: F401
+from .database import Base, create_database_engine, migrate_database
+from .db_models import AgentLog, AgentRun, User  # noqa: F401
 from .db_service import DatabaseService
 from .git_service import GitService
 from .log_stream import log_stream_manager
@@ -23,6 +23,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
     log_stream_manager.configure_database(database_service)
     Base.metadata.create_all(bind=engine)
+    migrate_database(engine)
 
     git_service = GitService(settings)
     workflow = IssueWorkflowService(settings, git_service)
@@ -34,7 +35,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         allow_methods=["*"],
         allow_headers=["*"],
     )
-    application.include_router(create_router(settings, workflow))
+    application.include_router(create_router(settings, workflow, database_service))
     application.state.settings = settings
     application.state.workflow = workflow
     application.state.database = database_service

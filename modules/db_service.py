@@ -1,4 +1,4 @@
-"""Database service operations for agent runs and logs."""
+"""Database service operations for agent runs, logs, and users."""
 
 from __future__ import annotations
 
@@ -7,7 +7,7 @@ from datetime import datetime, timezone
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from .db_models import AgentLog, AgentRun
+from .db_models import AgentLog, AgentRun, User
 
 
 class DatabaseService:
@@ -20,7 +20,53 @@ class DatabaseService:
     def utc_now() -> datetime:
         return datetime.now(timezone.utc)
 
-    def create_run(self, run_id: str, issue_number: int, status: str = "running") -> AgentRun:
+    # ------------------------------------------------------------------
+    # User operations
+    # ------------------------------------------------------------------
+
+    def create_user(self, username: str, password_hash: str, encrypted_github_token: str) -> User:
+        now = self.utc_now()
+        with self.session_factory() as session:
+            user = User(
+                username=username,
+                password_hash=password_hash,
+                github_token=encrypted_github_token,
+                created_at=now,
+            )
+            session.add(user)
+            session.commit()
+            session.refresh(user)
+            return user
+
+    def get_user_by_username(self, username: str) -> User | None:
+        with self.session_factory() as session:
+            return session.execute(
+                select(User).where(User.username == username)
+            ).scalar_one_or_none()
+
+    def update_user_token(self, username: str, encrypted_github_token: str) -> User | None:
+        with self.session_factory() as session:
+            user = session.execute(
+                select(User).where(User.username == username)
+            ).scalar_one_or_none()
+            if user is None:
+                return None
+            user.github_token = encrypted_github_token
+            session.commit()
+            session.refresh(user)
+            return user
+
+    # ------------------------------------------------------------------
+    # Run operations
+    # ------------------------------------------------------------------
+
+    def create_run(
+        self,
+        run_id: str,
+        issue_number: int,
+        status: str = "running",
+        triggered_by: str | None = None,
+    ) -> AgentRun:
         now = self.utc_now()
         with self.session_factory() as session:
             run = session.execute(select(AgentRun).where(AgentRun.run_id == run_id)).scalar_one_or_none()
@@ -31,12 +77,15 @@ class DatabaseService:
                     status=status,
                     started_at=now,
                     finished_at=None,
+                    triggered_by=triggered_by,
                 )
                 session.add(run)
             else:
                 run.issue_number = issue_number
                 run.status = status
                 run.started_at = run.started_at or now
+                if triggered_by is not None:
+                    run.triggered_by = triggered_by
                 if run.finished_at is not None and status == "running":
                     run.finished_at = None
             session.commit()
@@ -105,6 +154,19 @@ class DatabaseService:
     def get_runs(self) -> list[AgentRun]:
         with self.session_factory() as session:
             return session.execute(select(AgentRun).order_by(AgentRun.started_at.desc())).scalars().all()
+
+    def get_runs_for_user(self, username: str) -> list[AgentRun]:
+        """Return runs triggered by a specific GitHub username."""
+        with self.session_factory() as session:
+            return (
+                session.execute(
+                    select(AgentRun)
+                    .where(AgentRun.triggered_by == username)
+                    .order_by(AgentRun.started_at.desc())
+                )
+                .scalars()
+                .all()
+            )
 
     def get_logs_for_run(self, run_id: str) -> list[dict[str, str | int | None]]:
         with self.session_factory() as session:

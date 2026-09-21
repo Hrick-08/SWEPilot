@@ -3,8 +3,10 @@ import StatCard from '../components/dashboard/StatCard';
 import RunsChart from '../components/dashboard/RunsChart';
 import RecentActivity from '../components/dashboard/RecentActivity';
 import RepositorySummary from '../components/dashboard/RepositorySummary';
+import { useAuth } from '../context/AuthContext';
 
 export default function OverviewPage() {
+  const { username } = useAuth();
   const hour = new Date().getHours();
   const greeting =
     hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening';
@@ -14,12 +16,12 @@ export default function OverviewPage() {
       {/* Header */}
       <div>
         <h1 className="text-[28px] font-semibold text-[#F8FAFC]">
-          {greeting}, Abhinav
+          {greeting}, {username}
         </h1>
         <p className="text-[14px] text-[#94A3B8] mt-1">
           Here's what's happening with your repository.{' '}
           <span className="font-mono text-[13px] text-[#64748B]">
-            Hrick-08/SWEPilot · Connected
+            {username}/SWEPilot · Connected
           </span>
         </p>
       </div>
