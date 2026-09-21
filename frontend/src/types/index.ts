@@ -17,6 +17,7 @@ export interface Issue {
   repository: string;
   branch?: string;
   agentStatus?: RunStatus;
+  pullRequestUrl?: string;
 }
 
 export interface Run {

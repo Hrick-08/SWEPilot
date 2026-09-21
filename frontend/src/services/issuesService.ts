@@ -11,6 +11,7 @@ interface BackendIssue {
   description: string;
   repository: string;
   agent_status: Issue['agentStatus'];
+  pull_request_url?: string | null;
 }
 
 function mapIssue(issue: BackendIssue): Issue {
@@ -24,6 +25,7 @@ function mapIssue(issue: BackendIssue): Issue {
     description: issue.description,
     repository: issue.repository,
     agentStatus: issue.agent_status,
+    pullRequestUrl: issue.pull_request_url ?? undefined,
   };
 }
 

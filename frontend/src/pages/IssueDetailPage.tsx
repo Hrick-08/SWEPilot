@@ -12,7 +12,6 @@ import { issuesService } from '../services/issuesService';
 import type { Issue } from '../types';
 import { changedFiles } from '../data/changedFiles';
 import { testResults } from '../data/testResults';
-import { pullRequests } from '../data/pullRequests';
 
 const statusBadge = (status: string) => {
   switch (status) {
@@ -41,7 +40,6 @@ export default function IssueDetailPage() {
   const { logs, isStreaming } = useIssueLogs(id);
   const files = changedFiles[id] ?? [];
   const tests = testResults[id] ?? [];
-  const pr = pullRequests.find((p) => p.issueId === id);
 
   if (!issue) {
     return (
@@ -131,7 +129,7 @@ export default function IssueDetailPage() {
             {activeTab === 'files' && <ChangedFiles files={files} />}
             {activeTab === 'tests' && <TestResults tests={tests} />}
             {activeTab === 'pr' && (
-              <PullRequestInfo pr={pr} />
+              <PullRequestInfo pullRequestUrl={issue.pullRequestUrl} />
             )}
           </>
         )}
@@ -140,8 +138,8 @@ export default function IssueDetailPage() {
   );
 }
 
-function PullRequestInfo({ pr }: { pr?: typeof pullRequests[0] }) {
-  if (!pr) {
+function PullRequestInfo({ pullRequestUrl }: { pullRequestUrl?: string }) {
+  if (!pullRequestUrl) {
     return (
       <div className="py-8 text-center text-[14px] text-[#64748B]">
         No pull request has been created for this issue yet.
@@ -151,47 +149,9 @@ function PullRequestInfo({ pr }: { pr?: typeof pullRequests[0] }) {
 
   return (
     <Card>
-      <div className="space-y-4">
-        <div className="flex items-start justify-between">
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="text-[13px] font-mono text-[#64748B]">PR #{pr.id}</span>
-              <h3 className="text-[16px] font-semibold text-[#F8FAFC]">{pr.title}</h3>
-            </div>
-            <Badge
-              variant={pr.status === 'open' ? 'success' : pr.status === 'merged' ? 'purple' : 'default'}
-              size="md"
-            >
-              {pr.status.charAt(0).toUpperCase() + pr.status.slice(1)}
-            </Badge>
-          </div>
-          <Link
-            to={`/pull-requests/${pr.id}`}
-            className="px-3 py-1.5 text-[13px] font-medium text-[#3B82F6] bg-[#3B82F6]/10 rounded-lg hover:bg-[#3B82F6]/20 transition-colors"
-          >
-            View Pull Request
-          </Link>
-        </div>
-
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-3 border-t border-[#1E293B]">
-          <div>
-            <p className="text-[11px] text-[#64748B] uppercase tracking-wider">Branch</p>
-            <p className="text-[13px] font-mono text-[#F8FAFC] mt-0.5">{pr.branch}</p>
-          </div>
-          <div>
-            <p className="text-[11px] text-[#64748B] uppercase tracking-wider">Commit</p>
-            <p className="text-[13px] font-mono text-[#F8FAFC] mt-0.5">a82f9c1</p>
-          </div>
-          <div>
-            <p className="text-[11px] text-[#64748B] uppercase tracking-wider">Files Changed</p>
-            <p className="text-[13px] text-[#F8FAFC] mt-0.5">{pr.filesChanged}</p>
-          </div>
-          <div>
-            <p className="text-[11px] text-[#64748B] uppercase tracking-wider">Tests</p>
-            <p className="text-[13px] text-[#22C55E] mt-0.5">{pr.testsPassed} passed</p>
-          </div>
-        </div>
-      </div>
+      <a href={pullRequestUrl} target="_blank" rel="noreferrer" className="text-[14px] text-[#3B82F6] hover:underline">
+        Open pull request on GitHub
+      </a>
     </Card>
   );
 }

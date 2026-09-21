@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Github, Bot, Bell, Palette, Key } from 'lucide-react';
+import { Github, Bot, Bell, Key } from 'lucide-react';
 import Card from '../components/ui/Card';
 import { useAuth } from '../context/AuthContext';
 
@@ -86,34 +86,6 @@ export default function SettingsPage() {
           Configure your SWEPilot workspace.
         </p>
       </div>
-
-      {/* Repository */}
-      <Card>
-        <div className="flex items-center gap-3 mb-4">
-          <Github className="w-5 h-5 text-[#F8FAFC]" />
-          <h2 className="text-[16px] font-semibold text-[#F8FAFC]">Repository</h2>
-        </div>
-
-        <div className="space-y-3">
-          <div className="flex items-center justify-between py-2">
-            <span className="text-[13px] text-[#94A3B8]">Repository</span>
-            <span className="text-[13px] font-mono text-[#F8FAFC]">{username}/SWEPilot</span>
-          </div>
-          <div className="border-t border-[#1E293B]" />
-          <div className="flex items-center justify-between py-2">
-            <span className="text-[13px] text-[#94A3B8]">Default branch</span>
-            <span className="text-[13px] font-mono text-[#F8FAFC]">main</span>
-          </div>
-          <div className="border-t border-[#1E293B]" />
-          <div className="flex items-center justify-between py-2">
-            <span className="text-[13px] text-[#94A3B8]">Status</span>
-            <span className="flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-[#22C55E]" />
-              <span className="text-[13px] text-[#22C55E]">Connected</span>
-            </span>
-          </div>
-        </div>
-      </Card>
 
       {/* GitHub Account */}
       <Card>
@@ -245,28 +217,6 @@ export default function SettingsPage() {
         </div>
       </Card>
 
-      {/* Appearance */}
-      <Card>
-        <div className="flex items-center gap-3 mb-4">
-          <Palette className="w-5 h-5 text-[#3B82F6]" />
-          <h2 className="text-[16px] font-semibold text-[#F8FAFC]">Appearance</h2>
-        </div>
-
-        <div className="flex items-center justify-between py-2">
-          <div>
-            <p className="text-[13px] font-medium text-[#F8FAFC]">Theme</p>
-            <p className="text-[12px] text-[#64748B]">Choose your preferred theme</p>
-          </div>
-          <div className="flex items-center gap-1">
-            <button className="px-3 py-1.5 text-[12px] font-medium bg-[#3B82F6]/10 text-[#3B82F6] border border-[#3B82F6]/30 rounded-lg">
-              Dark
-            </button>
-            <button className="px-3 py-1.5 text-[12px] font-medium text-[#64748B] border border-[#1E293B] rounded-lg hover:bg-[#161D2A] transition-colors">
-              Light
-            </button>
-          </div>
-        </div>
-      </Card>
     </div>
   );
 }

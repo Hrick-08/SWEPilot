@@ -1,9 +1,9 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ChevronRight, GitMerge, GitPullRequest, CheckCircle2 } from 'lucide-react';
 import Input from '../components/ui/Input';
 import Badge from '../components/ui/Badge';
-import { pullRequests } from '../data/pullRequests';
-import { repository } from '../data/repository';
+import { issuesService } from '../services/issuesService';
+import type { Issue } from '../types';
 
 const statusConfig: Record<string, { badge: 'success' | 'purple' | 'default'; icon: typeof GitPullRequest }> = {
   open: { badge: 'success', icon: GitPullRequest },
@@ -14,12 +14,17 @@ const statusConfig: Record<string, { badge: 'success' | 'purple' | 'default'; ic
 export default function PullRequestsPage() {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [issues, setIssues] = useState<Issue[]>([]);
 
-  const filtered = pullRequests.filter((pr) => {
+  useEffect(() => {
+    void issuesService.getAll().then(setIssues).catch(() => setIssues([]));
+  }, []);
+
+  const filtered = issues.filter((issue) => {
     const matchesSearch =
-      pr.title.toLowerCase().includes(search.toLowerCase()) ||
-      `#${pr.id}`.includes(search);
-    const matchesStatus = statusFilter === 'all' || pr.status === statusFilter;
+      issue.title.toLowerCase().includes(search.toLowerCase()) ||
+      `#${issue.id}`.includes(search);
+    const matchesStatus = statusFilter === 'all' || issue.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
 
@@ -62,14 +67,14 @@ export default function PullRequestsPage() {
 
       {/* PR list */}
       <div className="bg-[#10151F] border border-[#1E293B] rounded-lg overflow-hidden">
-        {filtered.map((pr, index) => {
-          const config = statusConfig[pr.status] ?? statusConfig.open!;
+        {filtered.map((issue, index) => {
+          const config = statusConfig[issue.status] ?? statusConfig.open!;
           const StatusIcon = config.icon;
 
           return (
             <a
-              key={pr.id}
-              href={`${repository.url}/pull/${pr.id}`}
+              key={issue.id}
+              href={issue.pullRequestUrl ?? `https://github.com/${issue.repository}/issues/${issue.id}`}
               target="_blank"
               rel="noreferrer"
               className={`flex items-center gap-4 px-4 lg:px-5 py-4 hover:bg-[#161D2A] transition-colors ${
@@ -78,9 +83,9 @@ export default function PullRequestsPage() {
             >
               <StatusIcon
                 className={`w-5 h-5 flex-shrink-0 ${
-                  pr.status === 'open'
+                  issue.status === 'open'
                     ? 'text-[#22C55E]'
-                    : pr.status === 'merged'
+                    : issue.status === 'closed'
                       ? 'text-[#8B5CF6]'
                       : 'text-[#64748B]'
                 }`}
@@ -89,22 +94,22 @@ export default function PullRequestsPage() {
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 flex-wrap">
                   <span className="text-[12px] font-mono text-[#64748B]">
-                    PR #{pr.id}
+                    Issue #{issue.id}
                   </span>
                   <span className="text-[14px] font-medium text-[#F8FAFC] truncate">
-                    {pr.title}
+                    {issue.title}
                   </span>
                   <Badge variant={config.badge} size="sm">
-                    {pr.status.charAt(0).toUpperCase() + pr.status.slice(1)}
+                    {issue.status.replace('_', ' ').replace(/\b\w/g, (letter) => letter.toUpperCase())}
                   </Badge>
                 </div>
                 <div className="flex items-center gap-3 mt-1 text-[12px] text-[#64748B]">
-                  <span>{pr.filesChanged} files changed</span>
+                  <span>{issue.repository}</span>
                   <span className="flex items-center gap-1">
                     <CheckCircle2 className="w-3 h-3 text-[#22C55E]" />
-                    {pr.testsPassed} tests passed
+                    {issue.agentStatus ?? 'pending'}
                   </span>
-                  <span className="hidden sm:inline">{pr.createdAt}</span>
+                  <span className="hidden sm:inline">{issue.createdAt}</span>
                 </div>
               </div>
 

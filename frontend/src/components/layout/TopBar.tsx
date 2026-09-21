@@ -1,4 +1,4 @@
-import { Search, Bell, FolderGit2, Menu, X, LogOut } from 'lucide-react';
+import { Bell, Menu, X, LogOut } from 'lucide-react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import MobileSidebar from './MobileSidebar';
@@ -28,28 +28,10 @@ export default function TopBar() {
             <Menu className="w-5 h-5" />
           </button>
 
-          <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-md bg-[#0D121C] border border-[#1E293B]">
-            <FolderGit2 className="w-3.5 h-3.5 text-[#64748B]" />
-            <span className="text-[13px] font-mono text-[#94A3B8]">
-              {username}/SWEPilot
-            </span>
-          </div>
         </div>
 
         {/* Right side */}
         <div className="flex items-center gap-2">
-          {/* Search */}
-          <button
-            className="flex items-center gap-2 px-3 py-1.5 rounded-md bg-[#0D121C] border border-[#1E293B] text-[#64748B] hover:text-[#94A3B8] hover:border-[#334155] transition-colors"
-            aria-label="Search"
-          >
-            <Search className="w-3.5 h-3.5" />
-            <span className="hidden md:inline text-[13px]">Search...</span>
-            <kbd className="hidden lg:inline-flex items-center gap-0.5 px-1.5 py-0.5 ml-4 text-[10px] font-mono rounded bg-[#161D2A] text-[#64748B] border border-[#1E293B]">
-              ⌘K
-            </kbd>
-          </button>
-
           {/* Notifications */}
           <button
             className="relative p-2 rounded-md text-[#64748B] hover:text-[#94A3B8] hover:bg-[#161D2A] transition-colors"
