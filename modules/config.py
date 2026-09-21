@@ -29,6 +29,7 @@ class Settings:
             "foundry_endpoint": "AZURE_FOUNDRY_ENDPOINT",
             "foundry_deployment": "AZURE_FOUNDRY_DEPLOYMENT",
             "database_url": "DATABASE_URL",
+            "secret_key": "SECRET_KEY",
         }
         missing = [name for name in required.values() if not os.getenv(name)]
         if missing:
@@ -42,7 +43,7 @@ class Settings:
             foundry_endpoint=os.environ[required["foundry_endpoint"]].rstrip("/"),
             foundry_deployment=os.environ[required["foundry_deployment"]],
             database_url=database_url,
-            secret_key=os.getenv("SECRET_KEY", "change-me-in-production"),
+            secret_key=os.environ[required["secret_key"]],
             foundry_api_version=os.getenv("AZURE_FOUNDRY_API_VERSION", "2025-04-01-preview"),
             base_branch=os.getenv("SWEPILOT_BASE_BRANCH", "main"),
             agent_step_limit=int(os.getenv("SWEPILOT_AGENT_STEP_LIMIT", "60")),

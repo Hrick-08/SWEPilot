@@ -25,6 +25,7 @@ from .auth import (
     hash_password,
     verify_password,
 )
+from cryptography.fernet import InvalidToken
 from .config import Settings
 from .db_service import DatabaseService
 from .git_service import GitService
@@ -308,8 +309,19 @@ def create_router(
             # Decrypt the user's GitHub PAT and use it for this workflow
             try:
                 user_github_token = decrypt_github_token(user.github_token, settings.secret_key)
+            except InvalidToken:
+                log(
+                    f"[SWEPilot] Failed to decrypt token for user '{owner}': "
+                    "SECRET_KEY does not match the key used when the token was saved.",
+                    logging.ERROR,
+                )
+                return {
+                    "status": "error",
+                    "reason": "token_decryption_failed",
+                    "detail": "The deployed SECRET_KEY does not match the key used to encrypt this GitHub token.",
+                }
             except Exception as exc:
-                log(f"[SWEPilot] Failed to decrypt token for user '{owner}': {exc}", logging.ERROR)
+                log(f"[SWEPilot] Failed to decrypt token for user '{owner}': {exc!r}", logging.ERROR)
                 return {"status": "error", "reason": "token_decryption_failed"}
 
         run_id = uuid.uuid4().hex
