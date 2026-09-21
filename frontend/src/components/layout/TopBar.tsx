@@ -33,14 +33,14 @@ export default function TopBar() {
 
         {/* Right side */}
         <div className="flex items-center gap-2">
-          {/* Notifications */}
+          {/* Notifications
           <button
             className="relative p-2 rounded-md text-[#64748B] hover:text-[#94A3B8] hover:bg-[#161D2A] transition-colors"
             aria-label="Notifications"
           >
             <Bell className="w-4 h-4" />
             <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-[#3B82F6]" />
-          </button>
+          </button> */}
 
           {/* User */}
           <div className="flex items-center gap-2 ml-2">

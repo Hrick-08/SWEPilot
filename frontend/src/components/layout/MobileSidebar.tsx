@@ -2,7 +2,6 @@ import { NavLink, useLocation } from 'react-router-dom';
 import {
   LayoutDashboard,
   CircleDot,
-  GitPullRequest,
   Settings,
   Bot,
   X,
@@ -12,7 +11,6 @@ import { useEffect } from 'react';
 const navItems = [
   { to: '/overview', label: 'Overview', icon: LayoutDashboard },
   { to: '/issues', label: 'Issues', icon: CircleDot },
-  { to: '/pull-requests', label: 'Pull Requests', icon: GitPullRequest },
   { to: '/settings', label: 'Settings', icon: Settings },
 ];
 
@@ -51,7 +49,7 @@ export default function MobileSidebar({ isOpen, onClose }: MobileSidebarProps) {
       />
 
       {/* Sidebar */}
-      <aside className="absolute left-0 top-0 bottom-0 w-[280px] bg-[#0B0F17] border-r border-[#1E293B] flex flex-col animate-slide-in">
+      <aside className="absolute left-0 top-0 bottom-0 w-[min(280px,calc(100vw-24px))] bg-[#0B0F17] border-r border-[#1E293B] flex flex-col animate-slide-in">
         {/* Header */}
         <div className="flex items-center justify-between px-5 py-5 border-b border-[#1E293B]">
           <div className="flex items-center gap-2.5">

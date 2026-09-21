@@ -17,12 +17,12 @@ export default function Tabs({ tabs, defaultTab, onChange, children }: TabsProps
 
   return (
     <div>
-      <div className="flex gap-0 border-b border-[#1E293B] mb-4 overflow-x-auto">
+      <div className="flex min-w-0 gap-0 border-b border-[#1E293B] mb-4 overflow-x-auto">
         {tabs.map((tab) => (
           <button
             key={tab.id}
             onClick={() => handleTabChange(tab.id)}
-            className={`relative flex-1 px-4 py-2.5 text-[13px] font-medium whitespace-nowrap transition-colors duration-150 ${
+            className={`relative min-w-max flex-1 px-3 sm:px-4 py-2.5 text-[13px] font-medium whitespace-nowrap transition-colors duration-150 ${
               activeTab === tab.id
                 ? 'text-[#F8FAFC]'
                 : 'text-[#64748B] hover:text-[#94A3B8]'

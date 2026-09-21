@@ -60,7 +60,7 @@ export default function IssueDetailPage() {
       <div>
         <div className="flex items-start gap-3 flex-wrap">
           <span className="text-[14px] font-mono text-[#64748B]">#{issue.id}</span>
-          <h1 className="text-[24px] font-semibold text-[#F8FAFC]">{issue.title}</h1>
+          <h1 className="min-w-0 flex-1 break-words text-[22px] sm:text-[24px] font-semibold text-[#F8FAFC]">{issue.title}</h1>
         </div>
         <div className="flex items-center gap-2 mt-2 flex-wrap">
           <Badge variant={issue.status === 'open' ? 'success' : 'default'} size="md">
@@ -93,7 +93,7 @@ export default function IssueDetailPage() {
           </div>
           <div className="sm:justify-self-end">
             <p className="text-[11px] text-[#64748B] uppercase tracking-wider mb-1">Repository</p>
-            <p className="text-[13px] font-mono text-[#F8FAFC]">{issue.repository}</p>
+            <p className="max-w-full truncate text-[13px] font-mono text-[#F8FAFC]">{issue.repository}</p>
           </div>
         </div>
       </Card>

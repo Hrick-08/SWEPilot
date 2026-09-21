@@ -148,7 +148,7 @@ export default function SettingsPage() {
         </form>
       </Card>
 
-      {/* Agent Configuration */}
+      {/* Agent Configuration
       <Card>
         <div className="flex items-center gap-3 mb-4">
           <Bot className="w-5 h-5 text-[#8B5CF6]" />
@@ -184,9 +184,9 @@ export default function SettingsPage() {
             onChange={(v) => updateSetting('autoRunTests', v)}
           />
         </div>
-      </Card>
+      </Card> */}
 
-      {/* Notifications */}
+      {/* Notifications
       <Card>
         <div className="flex items-center gap-3 mb-4">
           <Bell className="w-5 h-5 text-[#F59E0B]" />
@@ -215,7 +215,7 @@ export default function SettingsPage() {
             onChange={(v) => updateSetting('notifyPRCreated', v)}
           />
         </div>
-      </Card>
+      </Card> */}
 
     </div>
   );

@@ -48,7 +48,7 @@ export default function PullRequestsPage() {
             onChange={(e) => setSearch(e.target.value)}
           />
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           {['all', 'open', 'merged', 'closed'].map((status) => (
             <button
               key={status}
@@ -104,7 +104,7 @@ export default function PullRequestsPage() {
                   </Badge>
                 </div>
                 <div className="flex items-center gap-3 mt-1 text-[12px] text-[#64748B]">
-                  <span>{issue.repository}</span>
+                  <span className="max-w-full truncate">{issue.repository}</span>
                   <span className="flex items-center gap-1">
                     <CheckCircle2 className="w-3 h-3 text-[#22C55E]" />
                     {issue.agentStatus ?? 'pending'}
