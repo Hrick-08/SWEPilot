@@ -5,6 +5,7 @@ interface AuthContextType {
   username: string | null;
   isAuthenticated: boolean;
   login: (username: string, password: string) => Promise<void>;
+  updateAccount: (username?: string, githubToken?: string) => Promise<void>;
   logout: () => void;
 }
 
@@ -26,6 +27,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUsername(data.username);
   };
 
+  const updateAccount = async (user?: string, githubToken?: string) => {
+    const data = await authService.updateAccount(user, githubToken);
+    setUsername(data.username);
+  };
+
   const logout = () => {
     authService.logout();
     setIsAuthenticated(false);
@@ -33,7 +39,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ username, isAuthenticated, login, logout }}>
+    <AuthContext.Provider value={{ username, isAuthenticated, login, updateAccount, logout }}>
       {children}
     </AuthContext.Provider>
   );

@@ -33,6 +33,28 @@ export const authService = {
     }
   },
 
+  async updateAccount(username?: string, githubToken?: string): Promise<{ token: string; username: string }> {
+    const token = this.getToken();
+    const response = await fetch(apiUrl('/auth/account'), {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+      body: JSON.stringify({ username, github_token: githubToken }),
+    });
+
+    if (!response.ok) {
+      const data = await response.json().catch(() => ({}));
+      throw new Error(data.detail || `Account update failed: ${response.status}`);
+    }
+
+    const data = await response.json();
+    localStorage.setItem(TOKEN_KEY, data.token);
+    localStorage.setItem(USERNAME_KEY, data.username);
+    return data;
+  },
+
   logout(): void {
     localStorage.removeItem(TOKEN_KEY);
     localStorage.removeItem(USERNAME_KEY);

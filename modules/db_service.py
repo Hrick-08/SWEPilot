@@ -44,6 +44,18 @@ class DatabaseService:
                 select(User).where(User.username == username)
             ).scalar_one_or_none()
 
+    def update_user_username(self, username: str, new_username: str) -> User | None:
+        with self.session_factory() as session:
+            user = session.execute(
+                select(User).where(User.username == username)
+            ).scalar_one_or_none()
+            if user is None:
+                return None
+            user.username = new_username
+            session.commit()
+            session.refresh(user)
+            return user
+
     def update_user_token(self, username: str, encrypted_github_token: str) -> User | None:
         with self.session_factory() as session:
             user = session.execute(
@@ -66,6 +78,7 @@ class DatabaseService:
         issue_number: int,
         status: str = "running",
         triggered_by: str | None = None,
+        issue_title: str | None = None,
     ) -> AgentRun:
         now = self.utc_now()
         with self.session_factory() as session:
@@ -74,6 +87,7 @@ class DatabaseService:
                 run = AgentRun(
                     run_id=run_id,
                     issue_number=issue_number,
+                    issue_title=issue_title,
                     status=status,
                     started_at=now,
                     finished_at=None,
@@ -82,6 +96,8 @@ class DatabaseService:
                 session.add(run)
             else:
                 run.issue_number = issue_number
+                if issue_title is not None:
+                    run.issue_title = issue_title
                 run.status = status
                 run.started_at = run.started_at or now
                 if triggered_by is not None:
@@ -131,6 +147,16 @@ class DatabaseService:
                 return None
             run.status = status
             run.finished_at = now
+            session.commit()
+            session.refresh(run)
+            return run
+
+    def update_run_issue_title(self, run_id: str, issue_title: str) -> AgentRun | None:
+        with self.session_factory() as session:
+            run = session.execute(select(AgentRun).where(AgentRun.run_id == run_id)).scalar_one_or_none()
+            if run is None:
+                return None
+            run.issue_title = issue_title
             session.commit()
             session.refresh(run)
             return run

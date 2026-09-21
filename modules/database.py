@@ -27,6 +27,20 @@ def migrate_database(engine) -> None:
             connection.execute(text("ALTER TABLE users ALTER COLUMN created_at SET NOT NULL"))
         if "triggered_by" not in agent_runs_columns:
             connection.execute(text("ALTER TABLE agent_runs ADD COLUMN triggered_by VARCHAR"))
+        if "issue_title" not in agent_runs_columns:
+            connection.execute(text("ALTER TABLE agent_runs ADD COLUMN issue_title VARCHAR"))
+        connection.execute(
+            text(
+                """
+                UPDATE agent_runs AS runs
+                SET issue_title = substring(logs.message from '\\[SWEPilot\\] Issue title: (.*)$')
+                FROM agent_logs AS logs
+                WHERE runs.run_id = logs.run_id
+                  AND (runs.issue_title IS NULL OR runs.issue_title = '')
+                  AND logs.message LIKE '[SWEPilot] Issue title:%'
+                """
+            )
+        )
 
 
 def create_session_factory(database_url: str):

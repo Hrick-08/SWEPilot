@@ -54,6 +54,11 @@ class LoginResponse(BaseModel):
     username: str
 
 
+class AccountUpdateRequest(BaseModel):
+    username: str | None = None
+    github_token: str | None = None
+
+
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
@@ -144,6 +149,34 @@ def create_router(
         jwt_token = create_access_token(body.username, settings.secret_key)
         return LoginResponse(token=jwt_token, username=body.username)
 
+    @router.patch("/auth/account", response_model=LoginResponse)
+    async def update_account(request: Request, body: AccountUpdateRequest):
+        current_username = _get_current_username(request, settings)
+        if current_username is None:
+            raise HTTPException(status_code=401, detail="Authentication required")
+
+        new_username = body.username.strip() if body.username is not None else current_username
+        new_github_token = body.github_token.strip() if body.github_token is not None else None
+        if not new_username:
+            raise HTTPException(status_code=422, detail="Username cannot be empty")
+        if new_github_token is not None and not new_github_token:
+            raise HTTPException(status_code=422, detail="GitHub token cannot be empty")
+        if body.username is None and body.github_token is None:
+            raise HTTPException(status_code=422, detail="Provide a username or GitHub token")
+        if new_username != current_username and database.get_user_by_username(new_username) is not None:
+            raise HTTPException(status_code=409, detail="Username already registered")
+
+        user = database.update_user_username(current_username, new_username)
+        if user is None:
+            raise HTTPException(status_code=404, detail="User not found")
+        if new_github_token is not None:
+            user = database.update_user_token(new_username, encrypt_github_token(new_github_token, settings.secret_key))
+
+        return LoginResponse(
+            token=create_access_token(new_username, settings.secret_key),
+            username=user.username,
+        )
+
     # ------------------------------------------------------------------
     # Public endpoints
     # ------------------------------------------------------------------
@@ -169,9 +202,9 @@ def create_router(
                 {
                     "run_id": run.run_id,
                     "issue_number": run.issue_number,
-                    "issue_title": log_stream_manager.runs_by_id.get(run.run_id, {}).get(
-                        "issue_title", f"Issue #{run.issue_number}"
-                    ),
+                    "issue_title": log_stream_manager.runs_by_id.get(run.run_id, {}).get("issue_title")
+                    or run.issue_title
+                    or f"Issue #{run.issue_number}",
                     "repository": log_stream_manager.runs_by_id.get(run.run_id, {}).get("repository"),
                     "status": run.status,
                     "started_at": run.started_at.isoformat(),

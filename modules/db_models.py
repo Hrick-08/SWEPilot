@@ -28,6 +28,7 @@ class AgentRun(Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     run_id: Mapped[str] = mapped_column(String, unique=True, index=True, nullable=False)
     issue_number: Mapped[int] = mapped_column(Integer, index=True, nullable=False)
+    issue_title: Mapped[str | None] = mapped_column(String, nullable=True)
     status: Mapped[str] = mapped_column(String, nullable=False)
     started_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     finished_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)

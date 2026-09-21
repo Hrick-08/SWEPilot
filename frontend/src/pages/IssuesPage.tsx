@@ -112,14 +112,9 @@ export default function IssuesPage() {
             />
 
             <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 flex-wrap">
-                <span className="text-[12px] font-mono text-[#64748B]">
-                  #{issue.id}
-                </span>
-                <span className="text-[14px] font-medium text-[#F8FAFC] truncate">
-                  {issue.title}
-                </span>
-              </div>
+              <span className="text-[14px] font-medium text-[#F8FAFC] truncate">
+                {issue.title}
+              </span>
             </div>
 
             <div className="hidden sm:flex items-center gap-2 flex-shrink-0">

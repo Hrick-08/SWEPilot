@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Github, Bot, Bell, Palette, Key } from 'lucide-react';
 import Card from '../components/ui/Card';
 import { useAuth } from '../context/AuthContext';
@@ -38,7 +38,12 @@ function Toggle({ label, description, checked, onChange }: ToggleProps) {
 }
 
 export default function SettingsPage() {
-  const { username } = useAuth();
+  const { username, updateAccount } = useAuth();
+  const [accountUsername, setAccountUsername] = useState(username ?? '');
+  const [githubToken, setGithubToken] = useState('');
+  const [accountMessage, setAccountMessage] = useState<string | null>(null);
+  const [accountError, setAccountError] = useState<string | null>(null);
+  const [savingAccount, setSavingAccount] = useState(false);
   const [settings, setSettings] = useState({
     autoCreatePR: true,
     autoRunTests: true,
@@ -46,6 +51,27 @@ export default function SettingsPage() {
     notifyRunFailed: true,
     notifyPRCreated: true,
   });
+
+  useEffect(() => {
+    setAccountUsername(username ?? '');
+  }, [username]);
+
+  const saveAccount = async (event: React.FormEvent) => {
+    event.preventDefault();
+    setAccountMessage(null);
+    setAccountError(null);
+    setSavingAccount(true);
+
+    try {
+      await updateAccount(accountUsername, githubToken || undefined);
+      setGithubToken('');
+      setAccountMessage('Account details updated.');
+    } catch (error) {
+      setAccountError(error instanceof Error ? error.message : 'Could not update account details.');
+    } finally {
+      setSavingAccount(false);
+    }
+  };
 
   const updateSetting = (key: string, value: boolean | string) => {
     setSettings((prev) => ({ ...prev, [key]: value }));
@@ -106,26 +132,48 @@ export default function SettingsPage() {
           </div>
         </div>
 
-        <div className="mt-4 border-t border-[#1E293B] pt-4">
-          <div className="flex items-center gap-2 mb-2">
-            <Key className="w-4 h-4 text-[#94A3B8]" />
-            <h3 className="text-[14px] font-medium text-[#F8FAFC]">GitHub Token</h3>
-          </div>
-          <div className="flex items-center gap-3">
+        <form onSubmit={saveAccount} className="mt-4 border-t border-[#1E293B] pt-4 space-y-4">
+          <div>
+            <label htmlFor="account-username" className="block text-[14px] font-medium text-[#F8FAFC] mb-2">
+              Username
+            </label>
             <input
-              type="password"
-              value="••••••••••••••••"
-              disabled
-              className="flex-1 bg-[#080B12] border border-[#1E293B] text-[#94A3B8] text-sm rounded-lg px-3 py-2 focus:outline-none cursor-not-allowed"
+              id="account-username"
+              type="text"
+              value={accountUsername}
+              onChange={(event) => setAccountUsername(event.target.value)}
+              required
+              autoComplete="username"
+              className="w-full bg-[#080B12] border border-[#1E293B] text-[#F8FAFC] text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-[#3B82F6] focus:ring-1 focus:ring-[#3B82F6]"
             />
-            <button className="px-4 py-2 bg-[#1E293B] hover:bg-[#334155] text-[#F8FAFC] text-sm font-medium rounded-lg transition-colors">
-              Update Token
-            </button>
           </div>
-          <p className="text-[12px] text-[#64748B] mt-2">
-            Contact admin to update token or use the CLI.
-          </p>
-        </div>
+          <div>
+            <div className="flex items-center gap-2 mb-2">
+              <Key className="w-4 h-4 text-[#94A3B8]" />
+              <h3 className="text-[14px] font-medium text-[#F8FAFC]">GitHub Token</h3>
+            </div>
+            <div className="flex items-center gap-3">
+              <input
+                id="github-token"
+                type="password"
+                value={githubToken}
+                onChange={(event) => setGithubToken(event.target.value)}
+                autoComplete="off"
+                placeholder="Enter a new token"
+                className="flex-1 bg-[#080B12] border border-[#1E293B] text-[#F8FAFC] text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-[#3B82F6] focus:ring-1 focus:ring-[#3B82F6]"
+              />
+              <button
+                type="submit"
+                disabled={savingAccount}
+                className="px-4 py-2 bg-[#3B82F6] hover:bg-[#2563EB] text-white text-sm font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {savingAccount ? 'Saving...' : 'Save changes'}
+              </button>
+            </div>
+          </div>
+          {accountMessage && <p className="text-[12px] text-[#22C55E]">{accountMessage}</p>}
+          {accountError && <p className="text-[12px] text-[#EF4444]">{accountError}</p>}
+        </form>
       </Card>
 
       {/* Agent Configuration */}
