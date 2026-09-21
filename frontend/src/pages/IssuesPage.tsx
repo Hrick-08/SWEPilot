@@ -79,7 +79,7 @@ export default function IssuesPage() {
             onChange={(e) => setSearch(e.target.value)}
           />
         </div>
-        <div className="flex gap-2">
+        {/* <div className="flex gap-2">
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
@@ -93,7 +93,7 @@ export default function IssuesPage() {
             <Filter className="w-3.5 h-3.5" />
             Filter
           </Button>
-        </div>
+        </div> */}
       </div>
 
       {/* Issue list */}
@@ -127,7 +127,7 @@ export default function IssuesPage() {
             </div>
 
             <span className="hidden md:block text-[12px] text-[#64748B] flex-shrink-0 w-24 text-right">
-              {issue.createdAt}
+              {issue.createdAt.slice(0, 10)}
             </span>
 
             <ChevronRight className="w-4 h-4 text-[#64748B] flex-shrink-0" />

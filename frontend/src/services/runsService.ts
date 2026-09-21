@@ -18,8 +18,9 @@ function mapRun(run: BackendRun): Run {
     issueTitle: run.issue_title,
     status: run.status,
     startedAt: run.started_at,
+    finishedAt: run.finished_at ?? undefined,
     duration: run.finished_at ? `${run.finished_at}` : undefined,
-    repository: run.repository ?? 'Unknown repository',
+    repository: run.repository ?? '',
     steps: [],
   };
 }

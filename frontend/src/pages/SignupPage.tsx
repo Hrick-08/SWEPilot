@@ -16,7 +16,7 @@ export default function SignupPage() {
 
   useEffect(() => {
     if (isAuthenticated) {
-      navigate('/issues', { replace: true });
+      navigate('/overview', { replace: true });
     }
   }, [isAuthenticated, navigate]);
 

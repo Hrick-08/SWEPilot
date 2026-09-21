@@ -1,5 +1,6 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
 import AppShell from './components/layout/AppShell';
+import OverviewPage from './pages/OverviewPage';
 import IssuesPage from './pages/IssuesPage';
 import IssueDetailPage from './pages/IssueDetailPage';
 import PullRequestsPage from './pages/PullRequestsPage';
@@ -28,7 +29,8 @@ export default function App() {
             <ProtectedRoute>
               <AppShell>
                 <Routes>
-                  <Route path="/" element={<Navigate to="/issues" replace />} />
+                  <Route path="/" element={<Navigate to="/overview" replace />} />
+                  <Route path="/overview" element={<OverviewPage />} />
                   <Route path="/issues" element={<IssuesPage />} />
                   <Route path="/issues/:issueId" element={<IssueDetailPage />} />
                   <Route path="/pull-requests" element={<PullRequestsPage />} />

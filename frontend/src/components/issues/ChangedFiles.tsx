@@ -13,9 +13,9 @@ export default function ChangedFiles({ files }: ChangedFilesProps) {
     <div className="space-y-2">
       <div className="flex items-center gap-2 mb-3">
         <FileCode className="w-4 h-4 text-[#64748B]" />
-        <span className="text-[14px] font-medium text-[#F8FAFC]">
+        {/* <span className="text-[14px] font-medium text-[#F8FAFC]">
           {files.length} files changed
-        </span>
+        </span> */}
       </div>
 
       {files.map((file) => (

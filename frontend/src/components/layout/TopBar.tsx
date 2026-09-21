@@ -1,5 +1,5 @@
-import { Bell, Menu, X, LogOut } from 'lucide-react';
-import { useState } from 'react';
+import { Bell, Menu, LogOut } from 'lucide-react';
+import { useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import MobileSidebar from './MobileSidebar';
 import { useAuth } from '../../context/AuthContext';
@@ -8,6 +8,7 @@ export default function TopBar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { username, logout } = useAuth();
   const navigate = useNavigate();
+  const closeMobileMenu = useCallback(() => setMobileMenuOpen(false), []);
 
   const handleLogout = () => {
     logout();
@@ -61,7 +62,7 @@ export default function TopBar() {
       {/* Mobile sidebar */}
       <MobileSidebar
         isOpen={mobileMenuOpen}
-        onClose={() => setMobileMenuOpen(false)}
+        onClose={closeMobileMenu}
       />
     </>
   );

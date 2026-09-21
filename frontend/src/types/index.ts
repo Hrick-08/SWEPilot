@@ -26,6 +26,7 @@ export interface Run {
   issueTitle: string;
   status: RunStatus;
   startedAt: string;
+  finishedAt?: string;
   duration?: string;
   branch?: string;
   repository: string;

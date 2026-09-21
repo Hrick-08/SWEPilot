@@ -1,5 +1,6 @@
 import { NavLink, useLocation } from 'react-router-dom';
 import {
+  LayoutDashboard,
   CircleDot,
   GitPullRequest,
   Settings,
@@ -9,6 +10,7 @@ import {
 import { useEffect } from 'react';
 
 const navItems = [
+  { to: '/overview', label: 'Overview', icon: LayoutDashboard },
   { to: '/issues', label: 'Issues', icon: CircleDot },
   { to: '/pull-requests', label: 'Pull Requests', icon: GitPullRequest },
   { to: '/settings', label: 'Settings', icon: Settings },
@@ -74,7 +76,7 @@ export default function MobileSidebar({ isOpen, onClose }: MobileSidebarProps) {
           {navItems.map((item) => {
             const isActive =
               location.pathname === item.to ||
-              location.pathname.startsWith(item.to);
+              (item.to !== '/overview' && location.pathname.startsWith(item.to));
             const Icon = item.icon;
 
             return (

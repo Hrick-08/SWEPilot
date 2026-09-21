@@ -74,7 +74,7 @@ export default function PullRequestsPage() {
           return (
             <a
               key={issue.id}
-              href={issue.pullRequestUrl ?? `https://github.com/${issue.repository}/issues/${issue.id}`}
+              href={issue.pullRequestUrl ?? `https://github.com/${issue.repository}/pull/${issue.id}`}
               target="_blank"
               rel="noreferrer"
               className={`flex items-center gap-4 px-4 lg:px-5 py-4 hover:bg-[#161D2A] transition-colors ${

@@ -22,13 +22,13 @@ export default function Tabs({ tabs, defaultTab, onChange, children }: TabsProps
           <button
             key={tab.id}
             onClick={() => handleTabChange(tab.id)}
-            className={`relative px-4 py-2.5 text-[13px] font-medium whitespace-nowrap transition-colors duration-150 ${
+            className={`relative flex-1 px-4 py-2.5 text-[13px] font-medium whitespace-nowrap transition-colors duration-150 ${
               activeTab === tab.id
                 ? 'text-[#F8FAFC]'
                 : 'text-[#64748B] hover:text-[#94A3B8]'
             }`}
           >
-            <span className="flex items-center gap-2">
+            <span className="flex items-center justify-center gap-2">
               {tab.label}
               {tab.count !== undefined && (
                 <span

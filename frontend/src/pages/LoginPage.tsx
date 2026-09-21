@@ -14,7 +14,7 @@ export default function LoginPage() {
 
   useEffect(() => {
     if (isAuthenticated) {
-      navigate('/issues', { replace: true });
+      navigate('/overview', { replace: true });
     }
   }, [isAuthenticated, navigate]);
 
@@ -25,7 +25,7 @@ export default function LoginPage() {
 
     try {
       await login(username, password);
-      navigate('/issues');
+      navigate('/overview');
     } catch (err: any) {
       setError(err.message || 'Login failed. Please check your credentials.');
     } finally {

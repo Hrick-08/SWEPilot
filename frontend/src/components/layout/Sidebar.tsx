@@ -1,14 +1,16 @@
 import { NavLink, useLocation } from 'react-router-dom';
 import {
+  LayoutDashboard,
   CircleDot,
-  GitPullRequest,
+  // GitPullRequest,
   Settings,
   Bot,
 } from 'lucide-react';
 
 const navItems = [
+  { to: '/overview', label: 'Overview', icon: LayoutDashboard },
   { to: '/issues', label: 'Issues', icon: CircleDot },
-  { to: '/pull-requests', label: 'Pull Requests', icon: GitPullRequest },
+  // { to: '/pull-requests', label: 'Pull Requests', icon: GitPullRequest },
   { to: '/settings', label: 'Settings', icon: Settings },
 ];
 
@@ -31,7 +33,7 @@ export default function Sidebar() {
         {navItems.map((item) => {
           const isActive =
             location.pathname === item.to ||
-            location.pathname.startsWith(item.to);
+            (item.to !== '/overview' && location.pathname.startsWith(item.to));
           const Icon = item.icon;
 
           return (

@@ -1,17 +1,12 @@
 import { useParams, Link } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-import { ArrowLeft, GitBranch, Clock, Bot } from 'lucide-react';
+import { ArrowLeft, Clock, Bot } from 'lucide-react';
 import Badge from '../components/ui/Badge';
 import Card from '../components/ui/Card';
-import Tabs from '../components/ui/Tabs';
 import LogViewer from '../components/issues/LogViewer';
-import ChangedFiles from '../components/issues/ChangedFiles';
-import TestResults from '../components/issues/TestResults';
 import { useIssueLogs } from '../hooks/useIssueLogs';
 import { issuesService } from '../services/issuesService';
 import type { Issue } from '../types';
-import { changedFiles } from '../data/changedFiles';
-import { testResults } from '../data/testResults';
 
 const statusBadge = (status: string) => {
   switch (status) {
@@ -38,8 +33,6 @@ export default function IssueDetailPage() {
     void issuesService.getById(id).then(setIssue).catch(() => setIssue(undefined));
   }, [id]);
   const { logs, isStreaming } = useIssueLogs(id);
-  const files = changedFiles[id] ?? [];
-  const tests = testResults[id] ?? [];
 
   if (!issue) {
     return (
@@ -51,13 +44,6 @@ export default function IssueDetailPage() {
       </div>
     );
   }
-
-  const tabs = [
-    { id: 'logs', label: 'Logs', count: logs.length },
-    { id: 'files', label: 'Files Changed', count: files.length },
-    { id: 'tests', label: 'Tests', count: tests.length },
-    { id: 'pr', label: 'Pull Request' },
-  ];
 
   return (
     <div className="space-y-6">
@@ -90,68 +76,29 @@ export default function IssueDetailPage() {
 
       {/* Agent info card */}
       <Card>
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-          <div>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="sm:justify-self-start">
             <div className="flex items-center gap-1.5 mb-1">
               <Bot className="w-3.5 h-3.5 text-[#8B5CF6]" />
               <p className="text-[11px] text-[#64748B] uppercase tracking-wider">Agent Status</p>
             </div>
             {statusBadge(issue.agentStatus ?? 'pending')}
           </div>
-          <div>
+          <div className="sm:justify-self-center">
             <div className="flex items-center gap-1.5 mb-1">
               <Clock className="w-3.5 h-3.5 text-[#64748B]" />
               <p className="text-[11px] text-[#64748B] uppercase tracking-wider">Started</p>
             </div>
-            <p className="text-[13px] text-[#F8FAFC]">{issue.createdAt}</p>
+            <p className="text-[13px] text-[#F8FAFC]">{issue.createdAt.slice(0, 10)}</p>
           </div>
-          <div>
+          <div className="sm:justify-self-end">
             <p className="text-[11px] text-[#64748B] uppercase tracking-wider mb-1">Repository</p>
             <p className="text-[13px] font-mono text-[#F8FAFC]">{issue.repository}</p>
-          </div>
-          <div>
-            <div className="flex items-center gap-1.5 mb-1">
-              <GitBranch className="w-3.5 h-3.5 text-[#64748B]" />
-              <p className="text-[11px] text-[#64748B] uppercase tracking-wider">Branch</p>
-            </div>
-            <p className="text-[13px] font-mono text-[#F8FAFC]">{issue.branch ?? '—'}</p>
           </div>
         </div>
       </Card>
 
-      {/* Tabs */}
-      <Tabs tabs={tabs} defaultTab="logs">
-        {(activeTab) => (
-          <>
-            {activeTab === 'logs' && (
-              <LogViewer logs={logs} isStreaming={isStreaming} />
-            )}
-            {activeTab === 'files' && <ChangedFiles files={files} />}
-            {activeTab === 'tests' && <TestResults tests={tests} />}
-            {activeTab === 'pr' && (
-              <PullRequestInfo pullRequestUrl={issue.pullRequestUrl} />
-            )}
-          </>
-        )}
-      </Tabs>
+      <LogViewer logs={logs} isStreaming={isStreaming} />
     </div>
-  );
-}
-
-function PullRequestInfo({ pullRequestUrl }: { pullRequestUrl?: string }) {
-  if (!pullRequestUrl) {
-    return (
-      <div className="py-8 text-center text-[14px] text-[#64748B]">
-        No pull request has been created for this issue yet.
-      </div>
-    );
-  }
-
-  return (
-    <Card>
-      <a href={pullRequestUrl} target="_blank" rel="noreferrer" className="text-[14px] text-[#3B82F6] hover:underline">
-        Open pull request on GitHub
-      </a>
-    </Card>
   );
 }
