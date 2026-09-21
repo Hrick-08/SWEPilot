@@ -79,6 +79,7 @@ class DatabaseService:
         status: str = "running",
         triggered_by: str | None = None,
         issue_title: str | None = None,
+        repository: str | None = None,
     ) -> AgentRun:
         now = self.utc_now()
         with self.session_factory() as session:
@@ -88,6 +89,7 @@ class DatabaseService:
                     run_id=run_id,
                     issue_number=issue_number,
                     issue_title=issue_title,
+                    repository=repository,
                     status=status,
                     started_at=now,
                     finished_at=None,
@@ -98,6 +100,8 @@ class DatabaseService:
                 run.issue_number = issue_number
                 if issue_title is not None:
                     run.issue_title = issue_title
+                if repository is not None:
+                    run.repository = repository
                 run.status = status
                 run.started_at = run.started_at or now
                 if triggered_by is not None:

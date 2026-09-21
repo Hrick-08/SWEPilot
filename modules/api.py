@@ -77,6 +77,13 @@ def _get_current_username(request: Request, settings: Settings) -> str | None:
     return decode_access_token(token, settings.secret_key)
 
 
+def _require_current_username(request: Request, settings: Settings) -> str:
+    username = _get_current_username(request, settings)
+    if username is None:
+        raise HTTPException(status_code=401, detail="Authentication required")
+    return username
+
+
 def run_workflow_in_background(
     workflow: IssueWorkflowService,
     settings: Settings,
@@ -192,13 +199,10 @@ def create_router(
 
     @router.get("/runs")
     async def get_runs(request: Request):
-        username = _get_current_username(request, settings)
+        username = _require_current_username(request, settings)
 
         if log_stream_manager.database is not None:
-            if username:
-                runs = log_stream_manager.database.get_runs_for_user(username)
-            else:
-                runs = log_stream_manager.database.get_runs()
+            runs = log_stream_manager.database.get_runs_for_user(username)
             return [
                 {
                     "run_id": run.run_id,
@@ -206,7 +210,9 @@ def create_router(
                     "issue_title": log_stream_manager.runs_by_id.get(run.run_id, {}).get("issue_title")
                     or run.issue_title
                     or f"Issue #{run.issue_number}",
-                    "repository": log_stream_manager.runs_by_id.get(run.run_id, {}).get("repository"),
+                    "repository": log_stream_manager.runs_by_id.get(run.run_id, {}).get("repository")
+                    or run.repository
+                    or f"{username}/SWEPilot",
                     "status": run.status,
                     "started_at": run.started_at.isoformat(),
                     "finished_at": run.finished_at.isoformat() if run.finished_at else None,
@@ -214,15 +220,13 @@ def create_router(
                 for run in runs
             ]
 
-        # In-memory fallback — filter by triggered_by when username is known
+        # In-memory fallback — authentication is required, so only this user's runs are returned.
         all_runs = list(log_stream_manager.runs_by_id.values())
-        if username:
-            return [r for r in all_runs if r.get("triggered_by") == username]
-        return all_runs
+        return [r for r in all_runs if r.get("triggered_by") == username]
 
     @router.get("/issues")
     async def get_issues(request: Request):
-        username = _get_current_username(request, settings)
+        username = _require_current_username(request, settings)
         runs = await get_runs(request)
         return [
             {
@@ -233,7 +237,7 @@ def create_router(
                 "created_at": run["started_at"],
                 "updated_at": run["finished_at"] or run["started_at"],
                 "description": "",
-                "repository": run.get("repository") or settings.repo_name,
+                "repository": run.get("repository") or f"{username}/SWEPilot",
                 "agent_status": run["status"],
             }
             for run in runs
@@ -330,7 +334,7 @@ def create_router(
             run_id,
             issue.number,
             issue.title,
-            repository.clone_url,
+            repository_name or repository.clone_url,
             triggered_by=owner,
         )
 

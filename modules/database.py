@@ -29,6 +29,8 @@ def migrate_database(engine) -> None:
             connection.execute(text("ALTER TABLE agent_runs ADD COLUMN triggered_by VARCHAR"))
         if "issue_title" not in agent_runs_columns:
             connection.execute(text("ALTER TABLE agent_runs ADD COLUMN issue_title VARCHAR"))
+        if "repository" not in agent_runs_columns:
+            connection.execute(text("ALTER TABLE agent_runs ADD COLUMN repository VARCHAR"))
         connection.execute(
             text(
                 """

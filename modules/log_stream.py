@@ -61,6 +61,7 @@ class LogStreamManager:
                     issue_title=stored_issue_title,
                     status="running",
                     triggered_by=triggered_by,
+                    repository=repository,
                 )
             except Exception as exc:
                 self._terminal_logger.exception("Database run registration failed for %s: %s", run_id, exc)
