@@ -1,8 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { ArrowLeft, Bot, Loader2 } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Loader2, LockKeyhole } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { authService } from '../services/authService';
 import { useAuth } from '../context/AuthContext';
+import AuthLayout from '../components/layout/AuthLayout';
+import Button from '../components/ui/Button';
+import Input from '../components/ui/Input';
 
 export default function SignupPage() {
   const [username, setUsername] = useState('');
@@ -44,106 +47,41 @@ export default function SignupPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#080B12] flex flex-col justify-center items-center p-4">
-      <div className="w-full max-w-md bg-[#10151F] border border-[#1E293B] rounded-xl shadow-2xl p-8">
-        <Link
-          to="/login"
-          className="inline-flex items-center text-sm text-[#94A3B8] hover:text-[#F8FAFC] transition-colors mb-6"
-        >
-          <ArrowLeft className="w-4 h-4 mr-2" />
-          Back to sign in
-        </Link>
+    <AuthLayout>
+      <Link to="/login" className="mb-8 inline-flex items-center gap-2 text-xs text-text-muted transition-colors hover:text-text-primary">
+        <ArrowLeft className="size-3.5" /> Back to sign in
+      </Link>
+      <div className="mb-8">
+        <h1 className="text-[30px] font-semibold tracking-[-0.045em] text-text-primary">Create your account</h1>
+        <p className="mt-3 text-[13px] leading-relaxed text-text-muted">Connect your GitHub account. Start building with less busywork.</p>
+      </div>
 
-        <div className="flex flex-col items-center mb-8">
-          <div className="w-12 h-12 bg-[#3B82F6] rounded-xl flex items-center justify-center mb-4 shadow-lg shadow-[#3B82F6]/20">
-            <Bot className="w-7 h-7 text-white" />
-          </div>
-          <h1 className="text-2xl font-bold text-[#F8FAFC]">Create your account</h1>
-          <p className="text-[#94A3B8] text-sm mt-2 text-center">
-            Connect your GitHub account to run SWEPilot fixes.
+      {error && <div role="alert" className="mb-6 rounded-lg border border-error/20 bg-error/8 px-4 py-3 text-xs leading-relaxed text-error">{error}</div>}
+
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div>
+          <label htmlFor="signup-username" className="field-label">Username</label>
+          <Input id="signup-username" type="text" value={username} onChange={(event) => setUsername(event.target.value)} required autoComplete="username" placeholder="Choose a username" />
+        </div>
+        <div>
+          <label htmlFor="signup-password" className="field-label">Password</label>
+          <Input id="signup-password" type="password" value={password} onChange={(event) => setPassword(event.target.value)} required minLength={8} autoComplete="new-password" placeholder="Create a password" />
+        </div>
+        <div>
+          <label htmlFor="signup-confirm-password" className="field-label">Confirm password</label>
+          <Input id="signup-confirm-password" type="password" value={confirmPassword} onChange={(event) => setConfirmPassword(event.target.value)} required minLength={8} autoComplete="new-password" placeholder="Repeat your password" />
+        </div>
+        <div className="border-t border-border/70 pt-5">
+          <label htmlFor="signup-token" className="field-label">GitHub personal access token</label>
+          <Input id="signup-token" type="password" value={githubToken} onChange={(event) => setGithubToken(event.target.value)} required autoComplete="off" aria-describedby="signup-token-help" placeholder="Paste your GitHub token" />
+          <p id="signup-token-help" className="mt-2.5 flex items-start gap-1.5 text-[11px] leading-relaxed text-text-muted">
+            <LockKeyhole className="mt-0.5 size-3 shrink-0" /> Stored encrypted and used to access your repositories.
           </p>
         </div>
-
-        {error && (
-          <div className="mb-6 p-3 bg-red-500/10 border border-red-500/20 rounded-lg text-red-400 text-sm text-center">
-            {error}
-          </div>
-        )}
-
-        <form onSubmit={handleSubmit} className="space-y-5">
-          <div>
-            <label className="block text-sm font-medium text-[#94A3B8] mb-1">Username</label>
-            <input
-              type="text"
-              value={username}
-              onChange={(event) => setUsername(event.target.value)}
-              required
-              autoComplete="username"
-              className="w-full bg-[#080B12] border border-[#1E293B] text-[#F8FAFC] text-sm rounded-lg px-4 py-2.5 focus:outline-none focus:border-[#3B82F6] focus:ring-1 focus:ring-[#3B82F6] transition-colors placeholder-[#64748B]"
-              placeholder="Choose a username"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-[#94A3B8] mb-1">Password</label>
-            <input
-              type="password"
-              value={password}
-              onChange={(event) => setPassword(event.target.value)}
-              required
-              minLength={8}
-              autoComplete="new-password"
-              className="w-full bg-[#080B12] border border-[#1E293B] text-[#F8FAFC] text-sm rounded-lg px-4 py-2.5 focus:outline-none focus:border-[#3B82F6] focus:ring-1 focus:ring-[#3B82F6] transition-colors placeholder-[#64748B]"
-              placeholder="Create a password"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-[#94A3B8] mb-1">Confirm password</label>
-            <input
-              type="password"
-              value={confirmPassword}
-              onChange={(event) => setConfirmPassword(event.target.value)}
-              required
-              minLength={8}
-              autoComplete="new-password"
-              className="w-full bg-[#080B12] border border-[#1E293B] text-[#F8FAFC] text-sm rounded-lg px-4 py-2.5 focus:outline-none focus:border-[#3B82F6] focus:ring-1 focus:ring-[#3B82F6] transition-colors placeholder-[#64748B]"
-              placeholder="Repeat your password"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-[#94A3B8] mb-1">GitHub personal access token</label>
-            <input
-              type="password"
-              value={githubToken}
-              onChange={(event) => setGithubToken(event.target.value)}
-              required
-              autoComplete="off"
-              className="w-full bg-[#080B12] border border-[#1E293B] text-[#F8FAFC] text-sm rounded-lg px-4 py-2.5 focus:outline-none focus:border-[#3B82F6] focus:ring-1 focus:ring-[#3B82F6] transition-colors placeholder-[#64748B]"
-              placeholder="Paste your GitHub token"
-            />
-            <p className="text-xs text-[#64748B] mt-2">
-              Stored encrypted and used to access your repositories.
-            </p>
-          </div>
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-[#3B82F6] hover:bg-[#2563EB] text-white font-medium py-2.5 rounded-lg transition-colors flex items-center justify-center mt-2 disabled:opacity-70 disabled:cursor-not-allowed"
-          >
-            {loading ? (
-              <>
-                <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                Creating account...
-              </>
-            ) : (
-              'Create account'
-            )}
-          </button>
-        </form>
-      </div>
-    </div>
+        <Button type="submit" disabled={loading} size="lg" className="mt-3 w-full">
+          {loading ? <><Loader2 className="size-4 animate-spin" /> Creating account...</> : <>Create account <ArrowRight className="size-4" /></>}
+        </Button>
+      </form>
+    </AuthLayout>
   );
 }

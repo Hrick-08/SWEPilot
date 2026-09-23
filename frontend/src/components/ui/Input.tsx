@@ -7,13 +7,13 @@ interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
 
 export default function Input({ icon = false, className = '', ...props }: InputProps) {
   return (
-    <div className="relative">
+    <div className="relative min-w-0">
       {icon && (
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#64748B]" />
+        <Search aria-hidden="true" className="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-text-muted" />
       )}
       <input
-        className={`w-full bg-[#0D121C] border border-[#1E293B] rounded-lg text-[13px] text-[#F8FAFC] placeholder-[#64748B] focus:outline-none focus:border-[#3B82F6] focus:ring-1 focus:ring-[#3B82F6]/30 transition-colors ${
-          icon ? 'pl-9 pr-3 py-2' : 'px-3 py-2'
+        className={`min-h-11 w-full rounded-lg border border-border bg-bg-secondary text-[13px] text-text-primary placeholder:text-text-muted transition-colors hover:border-text-muted/50 focus:border-accent-blue/60 focus:outline-none focus:ring-3 focus:ring-accent-blue/10 disabled:opacity-50 ${
+          icon ? 'py-2.5 pl-10 pr-3.5' : 'px-3.5 py-2.5'
         } ${className}`}
         {...props}
       />

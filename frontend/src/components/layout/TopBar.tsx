@@ -1,14 +1,23 @@
-import { Bell, Menu, LogOut } from 'lucide-react';
+import { Bell, ChevronRight, Menu, LogOut } from 'lucide-react';
 import { useCallback, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import MobileSidebar from './MobileSidebar';
 import { useAuth } from '../../context/AuthContext';
+
+const pageNames: Record<string, string> = {
+  overview: 'Overview',
+  issues: 'Issues',
+  'pull-requests': 'Pull requests',
+  settings: 'Settings',
+};
 
 export default function TopBar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { username, logout } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const closeMobileMenu = useCallback(() => setMobileMenuOpen(false), []);
+  const pageName = pageNames[location.pathname.split('/')[1]] ?? 'Workspace';
 
   const handleLogout = () => {
     logout();
@@ -17,53 +26,33 @@ export default function TopBar() {
 
   return (
     <>
-      <header className="sticky top-0 z-30 flex items-center justify-between h-14 px-4 lg:px-6 bg-[#080B12]/80 backdrop-blur-sm border-b border-[#1E293B]">
-        {/* Left side */}
-        <div className="flex items-center gap-3">
-          {/* Mobile menu button */}
-          <button
-            onClick={() => setMobileMenuOpen(true)}
-            className="lg:hidden p-1.5 rounded-md text-[#94A3B8] hover:text-[#F8FAFC] hover:bg-[#161D2A] transition-colors"
-            aria-label="Open menu"
-          >
-            <Menu className="w-5 h-5" />
+      <header className="z-30 flex h-16 shrink-0 items-center justify-between gap-3 border-b border-border/70 bg-bg-primary px-4 sm:px-7 xl:px-10">
+        <div className="flex min-w-0 items-center gap-3 text-xs">
+          <button onClick={() => setMobileMenuOpen(true)} className="icon-button lg:hidden" aria-label="Open menu">
+            <Menu className="size-[18px]" />
           </button>
-
+          <span className="hidden text-text-muted sm:inline">Workspace</span>
+          <ChevronRight className="hidden size-3 text-text-muted/60 sm:block" aria-hidden="true" />
+          <span className="truncate font-medium text-text-secondary">{pageName}</span>
         </div>
 
-        {/* Right side */}
-        <div className="flex items-center gap-2">
-          {/* Notifications
-          <button
-            className="relative p-2 rounded-md text-[#64748B] hover:text-[#94A3B8] hover:bg-[#161D2A] transition-colors"
-            aria-label="Notifications"
-          >
-            <Bell className="w-4 h-4" />
-            <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-[#3B82F6]" />
+        <div className="flex shrink-0 items-center gap-2">
+          {/* <button className="icon-button" aria-label="Notifications">
+            <Bell className="size-4" strokeWidth={1.7} />
           </button> */}
-
-          {/* User */}
-          <div className="flex items-center gap-2 ml-2">
-            <span className="hidden md:block text-[13px] text-[#94A3B8]">{username}</span>
-            <div className="flex items-center justify-center w-8 h-8 rounded-full bg-[#3B82F6]/20 text-[#3B82F6] text-[13px] font-semibold">
+          {/* <span className="mx-1 h-5 w-px bg-border" aria-hidden="true" /> */}
+          <div className="flex items-center gap-2.5">
+            <span className="hidden max-w-40 truncate text-xs text-text-secondary md:block">{username}</span>
+            <div className="flex size-7 items-center justify-center rounded-full border border-border bg-bg-hover text-[11px] font-medium text-text-secondary">
               {username?.charAt(0).toUpperCase() ?? 'U'}
             </div>
-            <button
-              onClick={handleLogout}
-              className="p-1.5 text-[#64748B] hover:text-[#EF4444] hover:bg-[#161D2A] rounded-md transition-colors ml-1"
-              title="Logout"
-            >
-              <LogOut className="w-4 h-4" />
+            <button onClick={handleLogout} className="icon-button hover:text-error" title="Logout" aria-label="Logout">
+              <LogOut className="size-3.5" />
             </button>
           </div>
         </div>
       </header>
-
-      {/* Mobile sidebar */}
-      <MobileSidebar
-        isOpen={mobileMenuOpen}
-        onClose={closeMobileMenu}
-      />
+      <MobileSidebar isOpen={mobileMenuOpen} onClose={closeMobileMenu} />
     </>
   );
 }

@@ -1,16 +1,12 @@
 import { NavLink, useLocation } from 'react-router-dom';
-import {
-  LayoutDashboard,
-  CircleDot,
-  Settings,
-  Bot,
-  X,
-} from 'lucide-react';
+import { LayoutDashboard, CircleDot, Settings, X } from 'lucide-react';
 import { useEffect } from 'react';
+import Brand from './Brand';
 
 const navItems = [
   { to: '/overview', label: 'Overview', icon: LayoutDashboard },
   { to: '/issues', label: 'Issues', icon: CircleDot },
+  // { to: '/pull-requests', label: 'Pull Requests', icon: GitPullRequest },
   { to: '/settings', label: 'Settings', icon: Settings },
 ];
 
@@ -21,6 +17,7 @@ interface MobileSidebarProps {
 
 export default function MobileSidebar({ isOpen, onClose }: MobileSidebarProps) {
   const location = useLocation();
+
   // Close on route change
   useEffect(() => {
     onClose();
@@ -42,62 +39,41 @@ export default function MobileSidebar({ isOpen, onClose }: MobileSidebarProps) {
 
   return (
     <div className="fixed inset-0 z-50 lg:hidden">
-      {/* Backdrop */}
-      <div
-        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-        onClick={onClose}
-      />
-
-      {/* Sidebar */}
-      <aside className="absolute left-0 top-0 bottom-0 w-[min(280px,calc(100vw-24px))] bg-[#0B0F17] border-r border-[#1E293B] flex flex-col animate-slide-in">
-        {/* Header */}
-        <div className="flex items-center justify-between px-5 py-5 border-b border-[#1E293B]">
-          <div className="flex items-center gap-2.5">
-            <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-[#3B82F6]">
-              <Bot className="w-4.5 h-4.5 text-white" />
-            </div>
-            <span className="text-[15px] font-semibold text-[#F8FAFC] tracking-tight">
-              SWEPilot
-            </span>
-          </div>
-          <button
-            onClick={onClose}
-            className="p-1.5 rounded-md text-[#94A3B8] hover:text-[#F8FAFC] hover:bg-[#161D2A] transition-colors"
-            aria-label="Close menu"
-          >
-            <X className="w-5 h-5" />
+      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
+      <aside aria-label="Mobile navigation" className="animate-slide-in absolute inset-y-0 left-0 flex w-[280px] max-w-[85vw] flex-col border-r border-border bg-bg-sidebar">
+        <div className="flex h-16 shrink-0 items-center justify-between border-b border-border/70 px-5">
+          <Brand />
+          <button onClick={onClose} className="icon-button" aria-label="Close menu">
+            <X className="size-[18px]" />
           </button>
         </div>
+        <nav aria-label="Main navigation" className="flex-1 px-3 py-7">
+          <p className="eyebrow mb-3 px-3">Workspace</p>
+          <div className="space-y-1">
+            {navItems.map((item) => {
+              const isActive = location.pathname === item.to ||
+                (item.to !== '/overview' && location.pathname.startsWith(item.to));
+              const Icon = item.icon;
 
-        {/* Navigation */}
-        <nav className="flex-1 px-3 py-4 space-y-0.5">
-          {navItems.map((item) => {
-            const isActive =
-              location.pathname === item.to ||
-              (item.to !== '/overview' && location.pathname.startsWith(item.to));
-            const Icon = item.icon;
-
-            return (
-              <NavLink
-                key={item.to}
-                to={item.to}
-                className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-[14px] font-medium transition-colors duration-150 ${
-                  isActive
-                    ? 'bg-[#3B82F6]/10 text-white'
-                    : 'text-[#94A3B8] hover:bg-[#161D2A] hover:text-[#F8FAFC]'
-                }`}
-              >
-                <Icon
-                  className={`w-[18px] h-[18px] ${
-                    isActive ? 'text-[#3B82F6]' : 'text-[#64748B]'
+              return (
+                <NavLink
+                  key={item.to}
+                  to={item.to}
+                  className={`flex items-center gap-3 rounded-lg border px-3 py-3 text-sm font-medium transition-colors ${
+                    isActive
+                      ? 'border-border bg-bg-hover text-text-primary'
+                      : 'border-transparent text-text-muted hover:bg-bg-hover hover:text-text-secondary'
                   }`}
-                />
-                {item.label}
-              </NavLink>
-            );
-          })}
+                >
+                  <Icon className={`size-[18px] ${isActive ? 'text-accent-blue' : 'text-text-muted'}`} strokeWidth={1.7} />
+                  {item.label}
+                  {isActive && <span className="ml-auto size-1 rounded-full bg-accent-blue" />}
+                </NavLink>
+              );
+            })}
+          </div>
         </nav>
-
+        <p className="mx-6 mb-6 border-t border-border pt-5 text-xs text-text-muted">From issue to pull request.</p>
       </aside>
     </div>
   );

@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
-import { Github, Bot, Bell, Key } from 'lucide-react';
+import { Github, Bot, Bell, Key, Loader2 } from 'lucide-react';
 import Card from '../components/ui/Card';
+import Input from '../components/ui/Input';
+import Button from '../components/ui/Button';
 import { useAuth } from '../context/AuthContext';
 
 interface ToggleProps {
@@ -12,26 +14,20 @@ interface ToggleProps {
 
 function Toggle({ label, description, checked, onChange }: ToggleProps) {
   return (
-    <div className="flex items-center justify-between py-3">
+    <div className="flex items-center justify-between gap-6 py-5">
       <div>
-        <p className="text-[13px] font-medium text-[#F8FAFC]">{label}</p>
-        {description && (
-          <p className="text-[12px] text-[#64748B] mt-0.5">{description}</p>
-        )}
+        <p className="text-[13px] font-medium text-text-secondary">{label}</p>
+        {description && <p className="mt-1 text-xs leading-relaxed text-text-muted">{description}</p>}
       </div>
       <button
+        type="button"
         role="switch"
+        aria-label={label}
         aria-checked={checked}
         onClick={() => onChange(!checked)}
-        className={`relative w-10 min-w-10 h-[22px] overflow-hidden rounded-full transition-colors duration-200 flex-shrink-0 ${
-          checked ? 'bg-[#3B82F6]' : 'bg-[#1E293B]'
-        }`}
+        className={`relative h-[22px] w-10 shrink-0 rounded-full border transition-colors duration-200 ${checked ? 'border-primary bg-primary' : 'border-border bg-bg-hover'}`}
       >
-        <span
-          className={`absolute left-[3px] top-[3px] w-4 h-4 rounded-full bg-white transition-transform duration-200 ${
-            checked ? 'translate-x-[18px]' : ''
-          }`}
-        />
+        <span className={`absolute left-0.5 top-0.5 size-4 rounded-full bg-white shadow-sm transition-transform duration-200 ${checked ? 'translate-x-[18px]' : ''}`} />
       </button>
     </div>
   );
@@ -78,145 +74,86 @@ export default function SettingsPage() {
   };
 
   return (
-    <div className="space-y-6 max-w-3xl">
-      {/* Header */}
-      <div>
-        <h1 className="text-[28px] font-semibold text-[#F8FAFC]">Settings</h1>
-        <p className="text-[14px] text-[#94A3B8] mt-1">
-          Configure your SWEPilot workspace.
-        </p>
+    <div className="max-w-5xl space-y-8">
+      <div className="page-header">
+        <div>
+          <h1 className="page-title">Settings</h1>
+          <p className="page-description">A workspace that works your way.</p>
+        </div>
       </div>
 
-      {/* GitHub Account */}
-      <Card>
-        <div className="flex items-center gap-3 mb-4">
-          <Github className="w-5 h-5 text-[#F8FAFC]" />
-          <h2 className="text-[16px] font-semibold text-[#F8FAFC]">GitHub Account</h2>
-        </div>
-
-        <div className="flex items-center gap-3 py-2">
-          <div className="flex items-center justify-center w-10 h-10 rounded-full bg-[#3B82F6]/20 text-[#3B82F6] text-[14px] font-semibold">
-            {username?.charAt(0).toUpperCase() ?? 'U'}
+      <div className="space-y-8">
+        <section className="grid items-start gap-5 xl:grid-cols-[210px_1fr] xl:gap-8" aria-labelledby="account-heading">
+          <div className="pt-1">
+            <h2 id="account-heading" className="flex items-center gap-2.5 text-sm font-medium text-text-primary"><Github className="size-4 text-text-muted" strokeWidth={1.7} />GitHub account</h2>
+            <p className="mt-2 text-xs leading-6 text-text-muted">Manage your account details and repository access.</p>
           </div>
-          <div>
-            <p className="text-[13px] font-medium text-[#F8FAFC]">{username}</p>
-            <p className="text-[12px] text-[#64748B]">GitHub: @{username}</p>
-          </div>
-        </div>
-
-        <form onSubmit={saveAccount} className="mt-4 border-t border-[#1E293B] pt-4 space-y-4">
-          <div>
-            <label htmlFor="account-username" className="block text-[14px] font-medium text-[#F8FAFC] mb-2">
-              Username
-            </label>
-            <input
-              id="account-username"
-              type="text"
-              value={accountUsername}
-              onChange={(event) => setAccountUsername(event.target.value)}
-              required
-              autoComplete="username"
-              className="w-full bg-[#080B12] border border-[#1E293B] text-[#F8FAFC] text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-[#3B82F6] focus:ring-1 focus:ring-[#3B82F6]"
-            />
-          </div>
-          <div>
-            <div className="flex items-center gap-2 mb-2">
-              <Key className="w-4 h-4 text-[#94A3B8]" />
-              <h3 className="text-[14px] font-medium text-[#F8FAFC]">GitHub Token</h3>
+          <Card>
+            <div className="flex min-w-0 items-center gap-3 border-b border-border pb-5">
+              <div className="flex size-10 shrink-0 items-center justify-center rounded-full border border-accent-blue/20 bg-accent-blue/8 text-sm font-medium text-accent-blue">{username?.charAt(0).toUpperCase() ?? 'U'}</div>
+              <div className="min-w-0">
+                <p className="truncate text-[13px] font-medium text-text-primary">{username}</p>
+                <p className="mt-0.5 truncate text-xs text-text-muted">GitHub: @{username}</p>
+              </div>
             </div>
-            <div className="flex items-center gap-3">
-              <input
-                id="github-token"
-                type="password"
-                value={githubToken}
-                onChange={(event) => setGithubToken(event.target.value)}
-                autoComplete="off"
-                placeholder="Enter a new token"
-                className="flex-1 bg-[#080B12] border border-[#1E293B] text-[#F8FAFC] text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-[#3B82F6] focus:ring-1 focus:ring-[#3B82F6]"
-              />
-              <button
-                type="submit"
-                disabled={savingAccount}
-                className="px-4 py-2 bg-[#3B82F6] hover:bg-[#2563EB] text-white text-sm font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {savingAccount ? 'Saving...' : 'Save changes'}
-              </button>
-            </div>
+            <form onSubmit={saveAccount} className="mt-5 space-y-5">
+              <div>
+                <label htmlFor="account-username" className="field-label">Username</label>
+                <Input id="account-username" type="text" value={accountUsername} onChange={(event) => setAccountUsername(event.target.value)} required autoComplete="username" />
+              </div>
+              <div>
+                <label htmlFor="github-token" className="field-label flex items-center gap-2"><Key className="size-3.5 text-text-muted" />GitHub token</label>
+                <Input id="github-token" type="password" value={githubToken} onChange={(event) => setGithubToken(event.target.value)} autoComplete="off" aria-describedby="token-help" placeholder="Enter a new token" />
+                <p id="token-help" className="mt-2 text-[11px] leading-relaxed text-text-muted">Leave blank to keep your current token.</p>
+              </div>
+              <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border pt-5">
+                <div aria-live="polite" className="min-w-0">
+                  {accountMessage && <p className="text-xs text-success">{accountMessage}</p>}
+                  {accountError && <p role="alert" className="text-xs text-error">{accountError}</p>}
+                </div>
+                <Button type="submit" disabled={savingAccount} className="ml-auto">
+                  {savingAccount && <Loader2 className="size-3.5 animate-spin" />}
+                  {savingAccount ? 'Saving...' : 'Save changes'}
+                </Button>
+              </div>
+            </form>
+          </Card>
+        </section>
+
+        {/* <section className="grid items-start gap-5 border-t border-border/70 pt-8 xl:grid-cols-[210px_1fr] xl:gap-8" aria-labelledby="agent-heading">
+          <div className="pt-1">
+            <h2 id="agent-heading" className="flex items-center gap-2.5 text-sm font-medium text-text-primary"><Bot className="size-4 text-text-muted" strokeWidth={1.7} />Agent configuration</h2>
+            <p className="mt-2 text-xs leading-6 text-text-muted">Preferences for how your agent approaches the work.</p>
           </div>
-          {accountMessage && <p className="text-[12px] text-[#22C55E]">{accountMessage}</p>}
-          {accountError && <p className="text-[12px] text-[#EF4444]">{accountError}</p>}
-        </form>
-      </Card>
-
-      {/* Agent Configuration
-      <Card>
-        <div className="flex items-center gap-3 mb-4">
-          <Bot className="w-5 h-5 text-[#8B5CF6]" />
-          <h2 className="text-[16px] font-semibold text-[#F8FAFC]">Agent Configuration</h2>
-        </div>
-
-        <div className="space-y-1">
-          <div className="flex items-center justify-between py-3">
-            <div>
-              <p className="text-[13px] font-medium text-[#F8FAFC]">Model</p>
-              <p className="text-[12px] text-[#64748B]">AI model used for code generation</p>
+          <Card className="!py-0">
+            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border py-5">
+              <div>
+                <p className="text-[13px] font-medium text-text-secondary">Model</p>
+                <p className="mt-1 text-xs text-text-muted">AI model used for code generation</p>
+              </div>
+              <span className="rounded-md border border-border bg-bg-secondary px-2.5 py-1.5 font-mono text-[11px] text-text-secondary">GPT-5 mini</span>
             </div>
-            <span className="px-3 py-1.5 bg-[#0D121C] border border-[#1E293B] rounded-lg text-[13px] font-mono text-[#94A3B8]">
-              GPT-5 mini
-            </span>
+            <div className="divide-y divide-border">
+              <Toggle label="Auto-create PR" description="Automatically create pull requests after successful runs" checked={settings.autoCreatePR} onChange={(v) => updateSetting('autoCreatePR', v)} />
+              <Toggle label="Auto-run tests" description="Automatically run tests before creating commits" checked={settings.autoRunTests} onChange={(v) => updateSetting('autoRunTests', v)} />
+            </div>
+          </Card>
+        </section>
+
+        <section className="grid items-start gap-5 border-t border-border/70 pt-8 xl:grid-cols-[210px_1fr] xl:gap-8" aria-labelledby="notifications-heading">
+          <div className="pt-1">
+            <h2 id="notifications-heading" className="flex items-center gap-2.5 text-sm font-medium text-text-primary"><Bell className="size-4 text-text-muted" strokeWidth={1.7} />Notifications</h2>
+            <p className="mt-2 text-xs leading-6 text-text-muted">Choose the updates you want to stay on top of.</p>
           </div>
-
-          <div className="border-t border-[#1E293B]" />
-
-          <Toggle
-            label="Auto-create PR"
-            description="Automatically create pull requests after successful runs"
-            checked={settings.autoCreatePR}
-            onChange={(v) => updateSetting('autoCreatePR', v)}
-          />
-
-          <div className="border-t border-[#1E293B]" />
-
-          <Toggle
-            label="Auto-run tests"
-            description="Automatically run tests before creating commits"
-            checked={settings.autoRunTests}
-            onChange={(v) => updateSetting('autoRunTests', v)}
-          />
-        </div>
-      </Card> */}
-
-      {/* Notifications
-      <Card>
-        <div className="flex items-center gap-3 mb-4">
-          <Bell className="w-5 h-5 text-[#F59E0B]" />
-          <h2 className="text-[16px] font-semibold text-[#F8FAFC]">Notifications</h2>
-        </div>
-
-        <div className="space-y-1">
-          <Toggle
-            label="Run completed"
-            description="Notify when an agent run completes successfully"
-            checked={settings.notifyRunCompleted}
-            onChange={(v) => updateSetting('notifyRunCompleted', v)}
-          />
-          <div className="border-t border-[#1E293B]" />
-          <Toggle
-            label="Run failed"
-            description="Notify when an agent run fails"
-            checked={settings.notifyRunFailed}
-            onChange={(v) => updateSetting('notifyRunFailed', v)}
-          />
-          <div className="border-t border-[#1E293B]" />
-          <Toggle
-            label="PR created"
-            description="Notify when a pull request is created"
-            checked={settings.notifyPRCreated}
-            onChange={(v) => updateSetting('notifyPRCreated', v)}
-          />
-        </div>
-      </Card> */}
-
+          <Card className="!py-0">
+            <div className="divide-y divide-border">
+              <Toggle label="Run completed" description="Notify when an agent run completes successfully" checked={settings.notifyRunCompleted} onChange={(v) => updateSetting('notifyRunCompleted', v)} />
+              <Toggle label="Run failed" description="Notify when an agent run fails" checked={settings.notifyRunFailed} onChange={(v) => updateSetting('notifyRunFailed', v)} />
+              <Toggle label="PR created" description="Notify when a pull request is created" checked={settings.notifyPRCreated} onChange={(v) => updateSetting('notifyPRCreated', v)} />
+            </div>
+          </Card>
+        </section> */}
+      </div>
     </div>
   );
 }

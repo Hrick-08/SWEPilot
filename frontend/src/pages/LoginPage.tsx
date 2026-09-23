@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Bot, Loader2 } from 'lucide-react';
+import { ArrowRight, Loader2 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import AuthLayout from '../components/layout/AuthLayout';
+import Button from '../components/ui/Button';
+import Input from '../components/ui/Input';
 
 export default function LoginPage() {
   const [username, setUsername] = useState('');
@@ -34,76 +37,34 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#080B12] flex flex-col justify-center items-center p-4">
-      <div className="w-full max-w-md bg-[#10151F] border border-[#1E293B] rounded-xl shadow-2xl p-8">
-        <div className="flex flex-col items-center mb-8">
-          <div className="w-12 h-12 bg-[#3B82F6] rounded-xl flex items-center justify-center mb-4 shadow-lg shadow-[#3B82F6]/20">
-            <Bot className="w-7 h-7 text-white" />
-          </div>
-          <h1 className="text-2xl font-bold text-[#F8FAFC]">SWEPilot</h1>
-          <p className="text-[#94A3B8] text-sm mt-2">Sign in to your account</p>
-        </div>
-
-        {error && (
-          <div className="mb-6 p-3 bg-red-500/10 border border-red-500/20 rounded-lg text-red-400 text-sm text-center">
-            {error}
-          </div>
-        )}
-
-        {location.state?.message && (
-          <div className="mb-6 p-3 bg-green-500/10 border border-green-500/20 rounded-lg text-green-400 text-sm text-center">
-            {location.state.message}
-          </div>
-        )}
-
-        <form onSubmit={handleSubmit} className="space-y-5">
-          <div>
-            <label className="block text-sm font-medium text-[#94A3B8] mb-1">Username</label>
-            <input
-              type="text"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              required
-              className="w-full bg-[#080B12] border border-[#1E293B] text-[#F8FAFC] text-sm rounded-lg px-4 py-2.5 focus:outline-none focus:border-[#3B82F6] focus:ring-1 focus:ring-[#3B82F6] transition-colors placeholder-[#64748B]"
-              placeholder="Enter your username"
-            />
-          </div>
-          
-          <div>
-            <label className="block text-sm font-medium text-[#94A3B8] mb-1">Password</label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              className="w-full bg-[#080B12] border border-[#1E293B] text-[#F8FAFC] text-sm rounded-lg px-4 py-2.5 focus:outline-none focus:border-[#3B82F6] focus:ring-1 focus:ring-[#3B82F6] transition-colors placeholder-[#64748B]"
-              placeholder="Enter your password"
-            />
-          </div>
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-[#3B82F6] hover:bg-[#2563EB] text-white font-medium py-2.5 rounded-lg transition-colors flex items-center justify-center mt-2 disabled:opacity-70 disabled:cursor-not-allowed"
-          >
-            {loading ? (
-              <>
-                <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                Signing in...
-              </>
-            ) : (
-              'Sign In'
-            )}
-          </button>
-        </form>
-
-        <p className="text-center text-sm text-[#94A3B8] mt-6">
-          New to SWEPilot?{' '}
-          <Link to="/signup" className="text-[#60A5FA] hover:text-[#93C5FD] transition-colors">
-            Create an account
-          </Link>
-        </p>
+    <AuthLayout>
+      <div className="mb-9">
+        <p className="eyebrow mb-4">Welcome back</p>
+        <h1 className="text-[30px] font-semibold tracking-[-0.045em] text-text-primary">Sign in to SWEPilot</h1>
+        <p className="mt-3 text-[13px] leading-relaxed text-text-muted">Pick up where your last commit left off.</p>
       </div>
-    </div>
+
+      {error && <div role="alert" className="mb-6 rounded-lg border border-error/20 bg-error/8 px-4 py-3 text-xs leading-relaxed text-error">{error}</div>}
+      {location.state?.message && <div role="status" className="mb-6 rounded-lg border border-success/20 bg-success/8 px-4 py-3 text-xs leading-relaxed text-success">{location.state.message}</div>}
+
+      <form onSubmit={handleSubmit} className="space-y-5">
+        <div>
+          <label htmlFor="login-username" className="field-label">Username</label>
+          <Input id="login-username" type="text" value={username} onChange={(e) => setUsername(e.target.value)} required autoComplete="username" placeholder="Enter your username" />
+        </div>
+        <div>
+          <label htmlFor="login-password" className="field-label">Password</label>
+          <Input id="login-password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required autoComplete="current-password" placeholder="Enter your password" />
+        </div>
+        <Button type="submit" disabled={loading} size="lg" className="mt-2 w-full">
+          {loading ? <><Loader2 className="size-4 animate-spin" /> Signing in...</> : <>Sign in <ArrowRight className="size-4" /></>}
+        </Button>
+      </form>
+
+      <p className="mt-8 border-t border-border/70 pt-6 text-center text-xs text-text-muted">
+        New to SWEPilot?{' '}
+        <Link to="/signup" className="font-medium text-text-secondary transition-colors hover:text-accent-blue">Create an account</Link>
+      </p>
+    </AuthLayout>
   );
 }

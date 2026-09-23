@@ -9,8 +9,8 @@ interface CardProps {
 export default function Card({ children, className = '', padding = true }: CardProps) {
   return (
     <div
-      className={`bg-[#10151F] border border-[#1E293B] rounded-lg ${
-        padding ? 'p-4 lg:p-5' : ''
+      className={`min-w-0 rounded-xl border border-border bg-bg-card shadow-[0_2px_8px_0_#0000000a] ${
+        padding ? 'p-5 lg:p-6' : ''
       } ${className}`}
     >
       {children}

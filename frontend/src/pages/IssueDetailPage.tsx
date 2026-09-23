@@ -1,6 +1,6 @@
 import { useParams, Link } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-import { ArrowLeft, Clock, Bot } from 'lucide-react';
+import { ArrowLeft, Clock, Bot, FolderGit2, CircleDot } from 'lucide-react';
 import Badge from '../components/ui/Badge';
 import Card from '../components/ui/Card';
 import LogViewer from '../components/issues/LogViewer';
@@ -36,64 +36,51 @@ export default function IssueDetailPage() {
 
   if (!issue) {
     return (
-      <div className="py-16 text-center">
-        <p className="text-[16px] text-[#64748B]">Loading issue or no run found.</p>
-        <Link to="/issues" className="text-[14px] text-[#3B82F6] hover:underline mt-2 inline-block">
-          ← Back to Issues
+      <div className="flex flex-col items-center py-24 text-center">
+        <CircleDot className="mb-4 size-6 text-text-muted" strokeWidth={1.5} />
+        <p className="text-sm text-text-secondary">Loading issue or no run found.</p>
+        <Link to="/issues" className="mt-4 inline-flex items-center gap-2 text-xs text-accent-blue hover:text-text-primary">
+          <ArrowLeft className="size-3.5" /> Back to Issues
         </Link>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
-      {/* Back link */}
-      <Link
-        to="/issues"
-        className="inline-flex items-center gap-1.5 text-[13px] text-[#94A3B8] hover:text-[#F8FAFC] transition-colors"
-      >
-        <ArrowLeft className="w-3.5 h-3.5" />
+    <div className="space-y-8">
+      <Link to="/issues" className="inline-flex items-center gap-2 text-xs text-text-muted transition-colors hover:text-text-primary">
+        <ArrowLeft className="size-3.5" />
         Back to Issues
       </Link>
 
-      {/* Header */}
       <div>
-        <div className="flex items-start gap-3 flex-wrap">
-          <span className="text-[14px] font-mono text-[#64748B]">#{issue.id}</span>
-          <h1 className="min-w-0 flex-1 break-words text-[22px] sm:text-[24px] font-semibold text-[#F8FAFC]">{issue.title}</h1>
-        </div>
-        <div className="flex items-center gap-2 mt-2 flex-wrap">
-          <Badge variant={issue.status === 'open' ? 'success' : 'default'} size="md">
-            {issue.status === 'open' ? 'Open' : 'Closed'}
-          </Badge>
-          {issue.labels.map((label) => (
-            <Badge key={label} variant="default" size="md">
-              {label}
-            </Badge>
-          ))}
+        <p className="mb-3 font-mono text-xs text-text-muted">ISSUE / {issue.id}</p>
+        <h1 className="max-w-4xl break-words text-2xl font-semibold leading-snug tracking-[-0.035em] text-text-primary sm:text-[30px]">{issue.title}</h1>
+        <div className="mt-4 flex flex-wrap items-center gap-2">
+          <Badge variant={issue.status === 'open' ? 'success' : 'default'} size="md">{issue.status === 'open' ? 'Open' : 'Closed'}</Badge>
+          {issue.labels.map((label) => <Badge key={label} variant="default" size="md">{label}</Badge>)}
         </div>
       </div>
 
-      {/* Agent info card */}
-      <Card>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <div className="sm:justify-self-start">
-            <div className="flex items-center gap-1.5 mb-1">
-              <Bot className="w-3.5 h-3.5 text-[#8B5CF6]" />
-              <p className="text-[11px] text-[#64748B] uppercase tracking-wider">Agent Status</p>
+      <Card padding={false}>
+        <div className="grid grid-cols-1 divide-y divide-border sm:grid-cols-3 sm:divide-x sm:divide-y-0">
+          <div className="p-5 sm:p-6">
+            <div className="mb-3 flex items-center gap-2 text-text-muted">
+              <Bot className="size-3.5" /><p className="eyebrow">Agent status</p>
             </div>
             {statusBadge(issue.agentStatus ?? 'pending')}
           </div>
-          <div className="sm:justify-self-center">
-            <div className="flex items-center gap-1.5 mb-1">
-              <Clock className="w-3.5 h-3.5 text-[#64748B]" />
-              <p className="text-[11px] text-[#64748B] uppercase tracking-wider">Started</p>
+          <div className="p-5 sm:p-6">
+            <div className="mb-3 flex items-center gap-2 text-text-muted">
+              <Clock className="size-3.5" /><p className="eyebrow">Started</p>
             </div>
-            <p className="text-[13px] text-[#F8FAFC]">{issue.createdAt.slice(0, 10)}</p>
+            <p className="text-[13px] text-text-secondary">{issue.createdAt.slice(0, 10)}</p>
           </div>
-          <div className="sm:justify-self-end">
-            <p className="text-[11px] text-[#64748B] uppercase tracking-wider mb-1">Repository</p>
-            <p className="max-w-full truncate text-[13px] font-mono text-[#F8FAFC]">{issue.repository}</p>
+          <div className="min-w-0 p-5 sm:p-6">
+            <div className="mb-3 flex items-center gap-2 text-text-muted">
+              <FolderGit2 className="size-3.5" /><p className="eyebrow">Repository</p>
+            </div>
+            <p className="break-all font-mono text-xs leading-relaxed text-text-secondary">{issue.repository}</p>
           </div>
         </div>
       </Card>

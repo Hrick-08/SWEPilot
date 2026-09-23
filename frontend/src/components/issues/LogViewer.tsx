@@ -1,5 +1,5 @@
 import { useRef, useEffect } from 'react';
-import { Terminal, ArrowDownToLine, Search, Trash2 } from 'lucide-react';
+import { Terminal } from 'lucide-react';
 import type { LogEntry } from '../../types';
 
 interface LogViewerProps {
@@ -8,11 +8,11 @@ interface LogViewerProps {
 }
 
 const levelColors: Record<string, string> = {
-  INFO: 'text-[#3B82F6]',
-  SUCCESS: 'text-[#22C55E]',
-  WARNING: 'text-[#F59E0B]',
-  ERROR: 'text-[#EF4444]',
-  DEBUG: 'text-[#64748B]',
+  INFO: 'text-accent-blue',
+  SUCCESS: 'text-success',
+  WARNING: 'text-warning',
+  ERROR: 'text-error',
+  DEBUG: 'text-text-muted',
 };
 
 export default function LogViewer({ logs, isStreaming }: LogViewerProps) {
@@ -25,73 +25,44 @@ export default function LogViewer({ logs, isStreaming }: LogViewerProps) {
   }, [logs]);
 
   return (
-    <div className="bg-[#0A0E15] border border-[#1E293B] rounded-lg overflow-hidden">
-      {/* Toolbar */}
-      <div className="flex items-center justify-between px-4 py-2 border-b border-[#1E293B] bg-[#0D121C]">
-        <div className="flex items-center gap-2">
-          <Terminal className="w-3.5 h-3.5 text-[#64748B]" />
-          <span className="text-[12px] font-medium text-[#94A3B8]">
-            Agent Logs
-          </span>
+    <div className="overflow-hidden rounded-xl border border-border bg-bg-primary">
+      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border bg-bg-card px-4 py-3 sm:px-5">
+        <div className="flex items-center gap-2.5">
+          <Terminal className="size-4 text-text-muted" />
+          <span className="text-xs font-medium text-text-secondary">Agent logs</span>
           {isStreaming && (
-            <span className="flex items-center gap-1.5 px-2 py-0.5 rounded bg-[#3B82F6]/10 text-[#3B82F6] text-[10px] font-medium">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#3B82F6] animate-pulse" />
-              Live
+            <span className="ml-1 flex items-center gap-1.5 rounded-md border border-accent-blue/15 bg-accent-blue/8 px-2 py-0.5 text-[10px] font-medium text-accent-blue">
+              <span className="size-1 animate-pulse rounded-full bg-accent-blue" /> Live
             </span>
           )}
         </div>
-        <div className="flex items-center gap-1">
-          <button
-            className="p-1.5 rounded text-[#64748B] hover:text-[#94A3B8] hover:bg-[#161D2A] transition-colors"
-            aria-label="Search logs"
-          >
-            <Search className="w-3.5 h-3.5" />
-          </button>
-          <button
-            className="p-1.5 rounded text-[#64748B] hover:text-[#94A3B8] hover:bg-[#161D2A] transition-colors"
-            aria-label="Auto-scroll"
-          >
-            <ArrowDownToLine className="w-3.5 h-3.5" />
-          </button>
-          <button
-            className="p-1.5 rounded text-[#64748B] hover:text-[#94A3B8] hover:bg-[#161D2A] transition-colors"
-            aria-label="Clear logs"
-          >
-            <Trash2 className="w-3.5 h-3.5" />
-          </button>
-        </div>
+        {/* <div className="flex items-center gap-0.5">
+          <button className="icon-button !size-8" aria-label="Search logs"><Search className="size-3.5" /></button>
+          <button className="icon-button !size-8" aria-label="Auto-scroll"><ArrowDownToLine className="size-3.5" /></button>
+          <span className="mx-1 h-3 w-px bg-border" aria-hidden="true" />
+          <button className="icon-button !size-8" aria-label="Clear logs"><Trash2 className="size-3.5" /></button>
+        </div> */}
       </div>
 
-      {/* Log content */}
-      <div
-        ref={containerRef}
-        className="p-4 max-h-[420px] overflow-y-auto font-mono text-[12.5px] leading-relaxed"
-      >
+      <div ref={containerRef} className="max-h-[480px] min-h-64 overflow-auto p-4 font-mono text-[11px] leading-6 sm:p-5 sm:text-xs" tabIndex={0} role="region" aria-label="Agent log output">
         {logs.length === 0 ? (
-          <div className="text-[#64748B] text-center py-8">
-            Waiting for logs...
+          <div className="flex flex-col items-center py-14 text-center">
+            <Terminal className="mb-3 size-6 text-text-muted/60" strokeWidth={1.3} />
+            <p className="text-xs text-text-muted">Waiting for logs<span className="text-accent-blue">...</span></p>
           </div>
         ) : (
           logs.map((log) => (
-            <div key={log.id} className="flex gap-3 py-0.5 hover:bg-[#0D121C] -mx-2 px-2 rounded">
-              <span className="text-[#64748B] flex-shrink-0 select-none">
-                [{log.timestamp}]
-              </span>
-              <span
-                className={`flex-shrink-0 w-16 font-medium ${
-                  levelColors[log.level] ?? 'text-[#94A3B8]'
-                }`}
-              >
-                {log.level}
-              </span>
-              <span className="text-[#E2E8F0]">{log.message}</span>
+            <div key={log.id} className="-mx-2 grid grid-cols-[auto_1fr] gap-x-3 rounded px-2 py-1 hover:bg-bg-secondary sm:grid-cols-[auto_4.5rem_1fr] sm:gap-x-4 sm:py-0.5">
+              <span className="col-span-2 text-[10px] text-text-muted sm:col-span-1 sm:text-[11px]">[{log.timestamp}]</span>
+              <span className={`font-medium ${levelColors[log.level] ?? 'text-text-secondary'}`}>{log.level}</span>
+              <span className="min-w-0 whitespace-pre-wrap break-words text-text-secondary [overflow-wrap:anywhere]">{log.message}</span>
             </div>
           ))
         )}
         {isStreaming && logs.length > 0 && (
-          <div className="flex items-center gap-2 mt-1 text-[#64748B]">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#3B82F6] animate-pulse" />
-            <span className="text-[11px]">Streaming...</span>
+          <div className="mt-4 flex items-center gap-2 text-text-muted">
+            <span className="size-1 animate-pulse rounded-full bg-accent-blue" />
+            <span className="text-[10px]">Streaming...</span>
           </div>
         )}
       </div>
